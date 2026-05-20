@@ -1,0 +1,27 @@
+# Obsidian — personal vault config, each reader has their own
+.obsidian/
+
+# Go build artifacts
+bin/
+*.exe
+*.test
+*.out
+*.prof
+
+# Vendored deps (we use modules)
+vendor/
+
+# Local env / secrets
+.env
+.env.local
+*.pem
+credentials
+kubeconfig
+
+# IDE
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# macOS
+.DS_Store
