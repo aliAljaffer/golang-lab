@@ -1,0 +1,10 @@
+[INFO] server starting
+[INFO] listening on :8080
+[DEBUG] config loaded from /etc/app
+[WARN] deprecated flag --legacy in use
+[ERROR] db connection refused
+[INFO] retrying db connection
+[INFO] db connected
+[ERROR] handler panic recovered: nil map
+[WARN] cache miss rate is 90%
+[INFO] shutting down

@@ -1,6 +1,6 @@
 # 06 — Testing
 
-> Status: ☐ not started — see [`PLAN.md`](./PLAN.md)
+> Status: ✅ scaffolded — examples + exercises + mini-project ready. Walkthrough doc still TODO.
 
 ## What you'll learn
 

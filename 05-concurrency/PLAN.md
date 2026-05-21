@@ -46,6 +46,10 @@ Tests verify:
 ## Status
 
 - [ ] Concepts in README walkthrough
-- [ ] Examples 01-08 built
-- [ ] Mini-project `fanout-ping` built + tested
-- [ ] Exercises scaffolded
+- [x] Examples 01-08 scaffolded (TODO blocks — user to fill in)
+- [x] Mini-project `fanout-ping` scaffolded + tests written (failing)
+- [x] Exercises scaffolded
+
+## Session Log
+
+When a Claude session does work in this section, append an entry to the root [`SESSIONS.md`](../SESSIONS.md) before ending — do **not** log session history in this file. `PLAN.md` is the plan; `SESSIONS.md` is the history. Tick the Status boxes above as items complete.

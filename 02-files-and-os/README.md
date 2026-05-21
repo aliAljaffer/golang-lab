@@ -1,6 +1,6 @@
 # 02 — Files & OS
 
-> Status: ☐ not started — see [`PLAN.md`](./PLAN.md)
+> Status: ☑ scaffolded — examples + mini-project + exercises have failing tests. See [`PLAN.md`](./PLAN.md).
 
 ## What you'll learn
 

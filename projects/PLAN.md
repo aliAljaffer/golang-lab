@@ -24,3 +24,7 @@ Capstones combining multiple sections. Each should be a non-trivial mini-tool th
 - [ ] `kube-events-to-slack` built
 - [ ] `s3-log-shipper` built
 - [ ] `deploy-bot` built
+
+## Session Log
+
+When a Claude session does work on a project in this folder, append an entry to the root [`SESSIONS.md`](../SESSIONS.md) before ending — do **not** log session history in this file. `PLAN.md` is the plan; `SESSIONS.md` is the history. Tick the Status boxes above as items complete.

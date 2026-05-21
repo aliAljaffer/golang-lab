@@ -45,6 +45,10 @@ Verifies that the testing patterns work on real code, not just toy examples.
 ## Status
 
 - [ ] Concepts in README walkthrough
-- [ ] Examples 01-08 built
-- [ ] Mini-project: tests added to dirsize + gh-repo-stats
-- [ ] Exercises scaffolded
+- [x] Examples 01-08 built
+- [x] Mini-project: `logstats` (kitchen-sink replacement for the original retro-tests plan — see mini-project/README.md)
+- [x] Exercises scaffolded
+
+## Session Log
+
+When a Claude session does work in this section, append an entry to the root [`SESSIONS.md`](../SESSIONS.md) before ending — do **not** log session history in this file. `PLAN.md` is the plan; `SESSIONS.md` is the history. Tick the Status boxes above as items complete.

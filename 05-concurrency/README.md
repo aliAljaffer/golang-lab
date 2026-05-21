@@ -1,6 +1,6 @@
 # 05 — Concurrency
 
-> Status: ☐ not started — see [`PLAN.md`](./PLAN.md)
+> Status: ☑ scaffolded — examples + mini-project + exercises ready to implement. See [`PLAN.md`](./PLAN.md).
 
 ## What you'll learn
 

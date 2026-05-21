@@ -46,3 +46,7 @@ Tests verify it outputs valid JSON with the expected keys when run with `--json`
 - `go install` ≈ `npm install -g` / `pipx install`
 - `go fmt` is non-negotiable — no Prettier/Black debate; the tool ships with the language
 - Single static binary output ≈ `pyinstaller` / `pkg` but *native*. This is *the* reason Go won DevOps.
+
+## Session Log
+
+When a Claude session does work in this section, append an entry to the root [`SESSIONS.md`](../SESSIONS.md) before ending — do **not** log session history in this file. `PLAN.md` is the plan; `SESSIONS.md` is the history. Tick the Status boxes above as items complete.

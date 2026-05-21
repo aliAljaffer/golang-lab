@@ -42,6 +42,10 @@ Tests verify:
 ## Status
 
 - [ ] Concepts in README walkthrough
-- [ ] Examples 01-07 built
-- [ ] Mini-project `logrotate` built + tested
-- [ ] Exercises scaffolded
+- [x] Examples 01-07 scaffolded (TODO-style — fill in `main.go` of each)
+- [x] Mini-project `logrotate` scaffolded with failing tests
+- [x] Exercises scaffolded with failing tests
+
+## Session Log
+
+When a Claude session does work in this section, append an entry to the root [`SESSIONS.md`](../SESSIONS.md) before ending — do **not** log session history in this file. `PLAN.md` is the plan; `SESSIONS.md` is the history. Tick the Status boxes above as items complete.

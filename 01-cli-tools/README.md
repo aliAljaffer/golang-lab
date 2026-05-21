@@ -1,6 +1,6 @@
 # 01 — CLI Tools
 
-> Status: ☐ not started — see [`PLAN.md`](./PLAN.md)
+> Status: ☑ scaffolded — examples, mini-project, and exercises are all stubbed with failing tests. See [`PLAN.md`](./PLAN.md).
 
 ## What you'll learn
 

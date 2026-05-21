@@ -54,3 +54,7 @@ Tests verify metrics are exposed and contain expected series.
 - [ ] Examples 01-06 built
 - [ ] Mini-project: instrument webhook-runner
 - [ ] Exercises scaffolded
+
+## Session Log
+
+When a Claude session does work in this section, append an entry to the root [`SESSIONS.md`](../SESSIONS.md) before ending — do **not** log session history in this file. `PLAN.md` is the plan; `SESSIONS.md` is the history. Tick the Status boxes above as items complete.
