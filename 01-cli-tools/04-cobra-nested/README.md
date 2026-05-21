@@ -10,7 +10,7 @@ Real DevOps CLIs have a tree shape: `kubectl get pods`, `gh pr list`, `aws s3 cp
 
 ## Try it after implementing
 
-```
+```bash
 go run . --help
 go run . get --help
 go run . get pods --namespace kube-system

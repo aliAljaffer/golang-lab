@@ -19,7 +19,7 @@ func UnsetMatching(env []string, pattern string, unsetter Unsetter) ([]string, e
 
 ## Run
 
-```
+```bash
 go test ./01-cli-tools/exercises/02-envdump/...
 ```
 

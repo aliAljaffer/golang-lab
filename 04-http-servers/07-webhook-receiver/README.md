@@ -6,7 +6,7 @@ Verify HMAC-SHA256 signatures the way GitHub / Slack / Stripe send them.
 
 The sender computes:
 
-```
+```go
 sig = HMAC-SHA256(secret, raw_body)
 ```
 
@@ -44,17 +44,17 @@ A different `BODY` with the same `SIG` will be rejected.
 
 ## What real providers send
 
-| Provider | Header | Algorithm |
-|---|---|---|
-| GitHub | `X-Hub-Signature-256: sha256=<hex>` | HMAC-SHA256 over raw body |
-| Slack | `X-Slack-Signature: v0=<hex>` (also `X-Slack-Request-Timestamp`) | HMAC-SHA256 over `v0:<ts>:<body>` |
-| Stripe | `Stripe-Signature: t=<ts>,v1=<hex>` | HMAC-SHA256 over `<ts>.<body>` |
+| Provider | Header                                                           | Algorithm                         |
+| -------- | ---------------------------------------------------------------- | --------------------------------- |
+| GitHub   | `X-Hub-Signature-256: sha256=<hex>`                              | HMAC-SHA256 over raw body         |
+| Slack    | `X-Slack-Signature: v0=<hex>` (also `X-Slack-Request-Timestamp`) | HMAC-SHA256 over `v0:<ts>:<body>` |
+| Stripe   | `Stripe-Signature: t=<ts>,v1=<hex>`                              | HMAC-SHA256 over `<ts>.<body>`    |
 
 The mini-project `webhook-runner` uses the GitHub flavor.
 
 ## Run
 
-```
+```bash
 WEBHOOK_SECRET=swordfish go run .
 # then use the curl above
 ```

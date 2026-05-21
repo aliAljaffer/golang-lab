@@ -26,11 +26,11 @@ type ctxKey int
 const requestIDKey ctxKey = 0
 ```
 
-Using an unexported `ctxKey` *type* (not a `string`) prevents accidental collisions with other packages stuffing things in the same context — the type is package-private so no one outside can construct a matching key. Stdlib uses the same pattern.
+Using an unexported `ctxKey` _type_ (not a `string`) prevents accidental collisions with other packages stuffing things in the same context — the type is package-private so no one outside can construct a matching key. Stdlib uses the same pattern.
 
 ## Run the tests
 
-```
+```bash
 go test -tags=exercise ./04-http-servers/exercises/03-request-tracing/...
 ```
 

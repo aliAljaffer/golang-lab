@@ -4,7 +4,7 @@ Practice testing real HTTP behaviour using `httptest.NewServer` instead of mocki
 
 ## Why httptest.NewServer over a mock client
 
-A common mistake is to mock `http.Client`'s `Do` method via an interface seam. That tests *your code's call into the abstraction*, not the actual networking. `httptest.NewServer` spins up a real localhost server in microseconds — you get to test:
+A common mistake is to mock `http.Client`'s `Do` method via an interface seam. That tests _your code's call into the abstraction_, not the actual networking. `httptest.NewServer` spins up a real localhost server in microseconds — you get to test:
 
 - That you set the right headers.
 - That `defer resp.Body.Close()` is in the right place (you'll find leaks with `-race` and goroutine counts).
@@ -23,19 +23,19 @@ func DoWithRetry(client *http.Client, req *http.Request, maxAttempts int) (*http
 
 Rules:
 
-| Condition | Action |
-|---|---|
-| Transport error | retry |
-| Status 429 | retry |
-| Status 5xx | retry |
-| Status 2xx or 4xx | return immediately |
-| Out of attempts | return the last response/error |
+| Condition         | Action                         |
+| ----------------- | ------------------------------ |
+| Transport error   | retry                          |
+| Status 429        | retry                          |
+| Status 5xx        | retry                          |
+| Status 2xx or 4xx | return immediately             |
+| Out of attempts   | return the last response/error |
 
 **Don't leak bodies.** On every retried attempt, close the response Body before sleeping. The tests don't assert this directly, but `go test -race` and a follow-up `httptest.Server.CloseClientConnections` test will catch it.
 
 ## Run
 
-```
+```bash
 go test -tags=exercise ./03-http-clients/exercises/03-mock-server-tests/...
 ```
 

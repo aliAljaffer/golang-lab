@@ -32,13 +32,13 @@ In practice you often use both: `client.Timeout` as a hard ceiling, plus per-cal
 
 ## Comparison
 
-| Concept | Go | Python | TS |
-|---|---|---|---|
-| Cancel signal | `context.Context` | n/a (lib-specific) | `AbortController` / `AbortSignal` |
-| Timeout per call | `context.WithTimeout` | `requests.get(..., timeout=2)` | `AbortSignal.timeout(2000)` |
+| Concept          | Go                    | Python                         | TS                                |
+| ---------------- | --------------------- | ------------------------------ | --------------------------------- |
+| Cancel signal    | `context.Context`     | n/a (lib-specific)             | `AbortController` / `AbortSignal` |
+| Timeout per call | `context.WithTimeout` | `requests.get(..., timeout=2)` | `AbortSignal.timeout(2000)`       |
 
 ## Run
 
-```
+```bash
 go run .
 ```

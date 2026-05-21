@@ -18,14 +18,14 @@ Don't overuse fixtures. A 3-line CSV is clearer inline.
 
 ## Comparison
 
-| Concept | Go | pytest | jest |
-|---|---|---|---|
-| Fixture dir | `testdata/` (magic, build-skipped) | `tests/fixtures/` (convention) | `__fixtures__/` (Jest convention) |
-| Helper marker | `t.Helper()` | (no equivalent — traceback is full) | (no equivalent) |
-| Teardown | `t.Cleanup(fn)` | yield in fixture / `addfinalizer` | `afterEach` |
+| Concept       | Go                                 | pytest                              | jest                              |
+| ------------- | ---------------------------------- | ----------------------------------- | --------------------------------- |
+| Fixture dir   | `testdata/` (magic, build-skipped) | `tests/fixtures/` (convention)      | `__fixtures__/` (Jest convention) |
+| Helper marker | `t.Helper()`                       | (no equivalent — traceback is full) | (no equivalent)                   |
+| Teardown      | `t.Cleanup(fn)`                    | yield in fixture / `addfinalizer`   | `afterEach`                       |
 
 ## Run
 
-```
+```bash
 go test -v ./06-testing/06-testdata/...
 ```

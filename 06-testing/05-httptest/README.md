@@ -23,7 +23,7 @@ The right answer for testing HTTP clients in Go: don't mock the client, mock the
 
 ## Run
 
-```
+```bash
 go test ./06-testing/05-httptest/...
 go test -v ./06-testing/05-httptest/...
 ```

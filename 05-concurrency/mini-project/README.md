@@ -4,7 +4,7 @@ Concurrent URL health checker with bounded parallelism, per-request timeouts, an
 
 ## Spec
 
-```
+```bash
 fanout-ping --concurrency 4 --timeout 2s \
   https://example.com \
   https://example.org \
@@ -13,7 +13,7 @@ fanout-ping --concurrency 4 --timeout 2s \
 
 Sample output:
 
-```
+```bash
 OK    https://example.org  status=200  (52ms)
 OK    https://example.net  status=200  (61ms)
 BAD   https://example.com  status=503  (88ms)
@@ -23,11 +23,11 @@ Lines stream as each check finishes — not held until the end.
 
 ## How it's split for testability
 
-| Function | Job |
-|---|---|
-| `Check(ctx, client, url)` | One HTTP GET. Transport errors → `Err` set, `Status=0`. 4xx/5xx → `Status` set, `Err=nil`. |
+| Function                              | Job                                                                                                |
+| ------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| `Check(ctx, client, url)`             | One HTTP GET. Transport errors → `Err` set, `Status=0`. 4xx/5xx → `Status` set, `Err=nil`.         |
 | `Run(ctx, client, urls, concurrency)` | Fan out `Check`. Semaphore channel bounds in-flight requests. Returns a streaming `<-chan Result`. |
-| `newRootCmd()` | cobra wiring + `signal.NotifyContext` for graceful cancel. |
+| `newRootCmd()`                        | cobra wiring + `signal.NotifyContext` for graceful cancel.                                         |
 
 Splitting `Run` from cobra lets the tests drive it with `httptest.NewServer` and assert behavior without parsing flags.
 
@@ -40,7 +40,7 @@ Splitting `Run` from cobra lets the tests drive it with `httptest.NewServer` and
 
 ## Run the tests
 
-```
+```bash
 go test -tags=exercise ./05-concurrency/mini-project/...
 ```
 

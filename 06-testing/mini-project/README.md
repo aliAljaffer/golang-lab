@@ -4,7 +4,7 @@ A small log aggregator that intentionally has surface area for every testing pat
 
 ## Spec
 
-```
+```bash
 logstats <source>            # source = file path OR http(s):// URL
 logstats --format json <source>
 ```
@@ -13,7 +13,7 @@ Reads lines like `[INFO] request handled in 12ms`, counts per level, reports a t
 
 Sample run:
 
-```
+```bash
 $ logstats ./testdata/lines.log
 total: 10
   DEBUG 1
@@ -25,22 +25,22 @@ rate:  500.0 events/s
 
 ## How it's split for testability
 
-| Piece | Type | Used in tests for |
-|---|---|---|
-| `Parse(line)` | pure | table tests (02), subtests (03), benchmark (07), fuzz (08) |
-| `FormatRate(n, d)` | pure | subtests (03) |
-| `Aggregator.Add/Snapshot` | stateful | helper-with-`t.Helper()` |
-| `Source` interface | seam | hand-rolled fake (04) |
-| `FileSource.Fetch` | I/O | fixtures from `testdata/` (06) |
-| `HTTPSource.Fetch` | I/O | `httptest.NewServer` (05) |
-| `Summarize(ctx, src)` | composition | end-to-end through all of the above |
-| `TestMain` | suite-level | demonstrates package-level setup/teardown |
+| Piece                     | Type        | Used in tests for                                          |
+| ------------------------- | ----------- | ---------------------------------------------------------- |
+| `Parse(line)`             | pure        | table tests (02), subtests (03), benchmark (07), fuzz (08) |
+| `FormatRate(n, d)`        | pure        | subtests (03)                                              |
+| `Aggregator.Add/Snapshot` | stateful    | helper-with-`t.Helper()`                                   |
+| `Source` interface        | seam        | hand-rolled fake (04)                                      |
+| `FileSource.Fetch`        | I/O         | fixtures from `testdata/` (06)                             |
+| `HTTPSource.Fetch`        | I/O         | `httptest.NewServer` (05)                                  |
+| `Summarize(ctx, src)`     | composition | end-to-end through all of the above                        |
+| `TestMain`                | suite-level | demonstrates package-level setup/teardown                  |
 
 The test file (`main_test.go`) is annotated with which example concept each test or block demonstrates — read it after working through examples 01-08 to see the patterns combined.
 
 ## Run the tests
 
-```
+```bash
 # all tests (some fail until you implement the TODOs)
 go test -tags=exercise ./06-testing/mini-project/...
 

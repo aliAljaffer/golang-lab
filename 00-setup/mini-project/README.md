@@ -10,16 +10,24 @@ go run ./00-setup/mini-project --json /path/to/go.mod
 ```
 
 Example output:
-```
-module:   github.com/alialjaffer/golang-learning
+
+```bash
+module:   github.com/alialjaffer/golang-lab
 go:       1.22
 deps:     0
 runtime:  darwin/arm64
 ```
 
 JSON mode:
+
 ```json
-{"module":"github.com/alialjaffer/golang-learning","go":"1.22","deps":0,"goos":"darwin","goarch":"arm64"}
+{
+  "module": "github.com/alialjaffer/golang-lab",
+  "go": "1.22",
+  "deps": 0,
+  "goos": "darwin",
+  "goarch": "arm64"
+}
 ```
 
 ## Your task
@@ -27,6 +35,7 @@ JSON mode:
 Open `main.go`. Replace the `TODO` stubs.
 
 You'll need to:
+
 1. Implement `parseGoMod(content []byte) (info, error)` — extract `module` and `go` lines, count `require` blocks
 2. Wire `main` to: parse flags (`--json`), read the file from argv[1], call `parseGoMod`, print
 
@@ -39,6 +48,7 @@ go test -tags=exercise ./00-setup/mini-project/
 ```
 
 When all tests pass, you're done. Then optionally:
+
 ```bash
 go run ./00-setup/mini-project ./go.mod   # try it on this repo's own go.mod
 ```

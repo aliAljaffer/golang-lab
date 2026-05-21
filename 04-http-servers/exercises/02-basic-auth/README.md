@@ -12,13 +12,13 @@ HTTP Basic Auth with constant-time comparison.
 
 ## Why constant-time
 
-`==` short-circuits the moment a byte differs. An attacker who can measure response times learns *where* the first mismatch is — and can guess one byte at a time. Constant-time compare always takes the same time regardless of input.
+`==` short-circuits the moment a byte differs. An attacker who can measure response times learns _where_ the first mismatch is — and can guess one byte at a time. Constant-time compare always takes the same time regardless of input.
 
 For passwords specifically, the real-world answer is "don't compare plaintext at all — store a bcrypt/argon2 hash and verify against that." For this exercise we're comparing in-memory constants from CLI flags, where constant-time string compare is the right tool.
 
 ## Run the tests
 
-```
+```bash
 go test -tags=exercise ./04-http-servers/exercises/02-basic-auth/...
 ```
 

@@ -30,7 +30,7 @@ Write tests until `go test -cover` reports 100%.
 
 ## Verify
 
-```
+```bash
 go test -tags=exercise -cover ./06-testing/exercises/03-coverage-gap/...
 ```
 

@@ -38,22 +38,22 @@ case <-sigCh:
 ## Details that bite
 
 - `srv.ListenAndServe()` returns `http.ErrServerClosed` after a clean shutdown. That's **not** an error — filter it out.
-- The shutdown context is the *grace deadline*. Pick a value shorter than k8s's `terminationGracePeriodSeconds`.
+- The shutdown context is the _grace deadline_. Pick a value shorter than k8s's `terminationGracePeriodSeconds`.
 - Handlers that need to abort early on shutdown should select on `r.Context().Done()`. Shutdown cancels per-request contexts when it gives up waiting.
 - Background workers (not handlers) need their own shutdown signal — `srv.Shutdown` only knows about HTTP.
 
 ## Comparison
 
-| Stack | Graceful shutdown hook |
-|---|---|
-| Go | `srv.Shutdown(ctx)` |
-| Node | `server.close(callback)` + drain timeout |
-| Python (uvicorn) | lifespan `shutdown` event |
-| Spring Boot | `server.shutdown=graceful` |
+| Stack            | Graceful shutdown hook                   |
+| ---------------- | ---------------------------------------- |
+| Go               | `srv.Shutdown(ctx)`                      |
+| Node             | `server.close(callback)` + drain timeout |
+| Python (uvicorn) | lifespan `shutdown` event                |
+| Spring Boot      | `server.shutdown=graceful`               |
 
 ## Run
 
-```
+```bash
 go run .
 
 # in another terminal:

@@ -11,11 +11,11 @@ Refactor time-dependent code so tests can pin "now" instead of sleeping.
 
 Replace both `time.Now()` calls inside `ShouldFire`/`Fire` with `s.Now()`, then re-run:
 
-```
+```bash
 go test -tags=exercise ./06-testing/exercises/02-fake-clock/...
 ```
 
-That's literally the whole exercise — a 2-character change. The point is the *thinking* around it, not the keystrokes: why a function-value field beats an interface here, how it lets tests pin time without sleeping, and why every code path that uses `time.Now`/`time.Sleep`/`rand.Read`/`os.Getenv` should go through an injectable seam.
+That's literally the whole exercise — a 2-character change. The point is the _thinking_ around it, not the keystrokes: why a function-value field beats an interface here, how it lets tests pin time without sleeping, and why every code path that uses `time.Now`/`time.Sleep`/`rand.Read`/`os.Getenv` should go through an injectable seam.
 
 ## Why `func() time.Time` instead of a `Clock` interface
 
@@ -28,7 +28,7 @@ A bigger codebase that needs to fake `Sleep`, `After`, `Tick`, and `Now` will wa
 
 ## Verify
 
-```
+```bash
 go test -tags=exercise -v ./06-testing/exercises/02-fake-clock/...
 ```
 

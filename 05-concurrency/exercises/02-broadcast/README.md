@@ -25,7 +25,7 @@ The map stores `chan string` (bidirectional — broker needs to send and close).
 
 ## Run the tests
 
-```
+```bash
 go test -tags=exercise ./05-concurrency/exercises/02-broadcast/...
 ```
 

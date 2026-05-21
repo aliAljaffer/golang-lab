@@ -4,9 +4,9 @@
 
 ## The two probes
 
-| Probe | k8s field | Question | If it fails |
-|---|---|---|---|
-| Liveness | `livenessProbe` | "is the process alive?" | k8s restarts the pod |
+| Probe     | k8s field        | Question                        | If it fails                                    |
+| --------- | ---------------- | ------------------------------- | ---------------------------------------------- |
+| Liveness  | `livenessProbe`  | "is the process alive?"         | k8s restarts the pod                           |
 | Readiness | `readinessProbe` | "should this pod take traffic?" | k8s removes the pod from the Service endpoints |
 
 ## Why they must differ
@@ -17,7 +17,7 @@
 
 - A dependency is down — pull this pod out of rotation
 - The process is starting up and warming caches — don't send traffic yet
-- The process is shutting down — flip readiness to false *before* `srv.Shutdown(ctx)` so k8s drains traffic first
+- The process is shutting down — flip readiness to false _before_ `srv.Shutdown(ctx)` so k8s drains traffic first
 
 ## The shutdown dance
 
@@ -32,15 +32,15 @@ Without the readiness flip, you'd drain in-flight requests but k8s would keep se
 
 ## Comparison
 
-| Stack | Liveness equivalent | Readiness equivalent |
-|---|---|---|
+| Stack                | Liveness equivalent         | Readiness equivalent         |
+| -------------------- | --------------------------- | ---------------------------- |
 | Spring Boot Actuator | `/actuator/health/liveness` | `/actuator/health/readiness` |
-| Node | hand-rolled | hand-rolled |
-| Python (FastAPI) | hand-rolled | hand-rolled |
+| Node                 | hand-rolled                 | hand-rolled                  |
+| Python (FastAPI)     | hand-rolled                 | hand-rolled                  |
 
 ## Run
 
-```
+```bash
 go run .
 curl -i http://localhost:8080/healthz       # 200
 curl -i http://localhost:8080/readyz        # 200

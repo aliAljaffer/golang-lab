@@ -17,10 +17,10 @@ The idiomatic Go testing style. Once you internalize this, you won't write tests
 
 ## Comparison
 
-| Concept | Go (table) | pytest | jest |
-|---|---|---|---|
-| Idiom | `[]struct{...}` + for loop | `@pytest.mark.parametrize` | `describe.each` / `test.each` |
-| Per-case naming | `name` field used in `t.Errorf` | id= or auto-generated | template literal |
+| Concept         | Go (table)                      | pytest                     | jest                          |
+| --------------- | ------------------------------- | -------------------------- | ----------------------------- |
+| Idiom           | `[]struct{...}` + for loop      | `@pytest.mark.parametrize` | `describe.each` / `test.each` |
+| Per-case naming | `name` field used in `t.Errorf` | id= or auto-generated      | template literal              |
 
 ## Next
 
@@ -28,7 +28,7 @@ The next example (`03-subtests`) shows the upgrade: wrap the loop body in `t.Run
 
 ## Run
 
-```
+```bash
 go test ./06-testing/02-table-driven/...
 go test -v ./06-testing/02-table-driven/...
 ```

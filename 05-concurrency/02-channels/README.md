@@ -4,7 +4,7 @@ Typed pipes. The Go idiom for goroutines to talk.
 
 ## Things to notice
 
-- **Unbuffered** (`make(chan T)`) is a synchronous *handoff*: the sender blocks until a receiver is there, and vice versa. There is never a value "in" the channel — it's a rendezvous.
+- **Unbuffered** (`make(chan T)`) is a synchronous _handoff_: the sender blocks until a receiver is there, and vice versa. There is never a value "in" the channel — it's a rendezvous.
 - **Buffered** (`make(chan T, N)`) is a tiny queue of size N. Sends only block when the buffer is full; receives only block when it's empty.
 - `close(ch)` says "no more values coming." Sending on a closed channel **panics**. Receiving from a closed channel returns the zero value with `ok=false`. The `for v := range ch` loop exits cleanly when the channel is closed and drained.
 - The rule: **only the sender closes**, and only when no more sends will happen. If multiple goroutines might send, you need a separate signal (often a `done chan struct{}`).
@@ -12,11 +12,11 @@ Typed pipes. The Go idiom for goroutines to talk.
 
 ## Comparison
 
-| Concept | Go | Python | TS / Node |
-|---|---|---|---|
-| Synchronous handoff | `make(chan T)` | `queue.Queue(maxsize=0)` (sort of) | (no native) |
-| Bounded queue | `make(chan T, N)` | `queue.Queue(maxsize=N)` | (no native; libraries) |
-| Close signal | `close(ch)` | sentinel value | `EventEmitter.emit('end')` |
+| Concept             | Go                | Python                             | TS / Node                  |
+| ------------------- | ----------------- | ---------------------------------- | -------------------------- |
+| Synchronous handoff | `make(chan T)`    | `queue.Queue(maxsize=0)` (sort of) | (no native)                |
+| Bounded queue       | `make(chan T, N)` | `queue.Queue(maxsize=N)`           | (no native; libraries)     |
+| Close signal        | `close(ch)`       | sentinel value                     | `EventEmitter.emit('end')` |
 
 ## Common bugs
 
@@ -26,6 +26,6 @@ Typed pipes. The Go idiom for goroutines to talk.
 
 ## Run
 
-```
+```bash
 go run .
 ```

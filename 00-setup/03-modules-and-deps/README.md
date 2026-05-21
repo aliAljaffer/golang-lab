@@ -12,7 +12,8 @@ go mod init example.com/demo
 ```
 
 Inspect `go.mod`:
-```
+
+```go
 module example.com/demo
 
 go 1.22
@@ -40,27 +41,32 @@ EOF
 ```
 
 Try to run:
+
 ```bash
 go run .
 ```
 
 You'll see Go complain — the import isn't in `go.mod`. Fix it:
+
 ```bash
 go mod tidy
 ```
 
 Now inspect `go.mod`:
-```
+
+```go
 require github.com/google/uuid v1.6.0
 ```
 
 And inspect `go.sum`:
+
 ```bash
 cat go.sum
 # two lines per dep: zip hash + go.mod hash
 ```
 
 Now `go run .` works:
+
 ```bash
 go run .
 # new id: <some-uuid>
@@ -69,6 +75,7 @@ go run .
 ## Remove the dependency
 
 Comment out the `import "github.com/google/uuid"` line and the `uuid.New()` call. Then:
+
 ```bash
 go mod tidy
 ```
@@ -91,10 +98,10 @@ cat go.mod   # now pinned to v1.5.0
 
 ## Analogies
 
-| Action | Go | Python (poetry) | TypeScript (npm) |
-|---|---|---|---|
-| Init project | `go mod init <path>` | `poetry init` | `npm init` |
-| Add a dep | `go get pkg@v` | `poetry add pkg` | `npm install pkg` |
-| Sync manifest ↔ imports | `go mod tidy` | (manual) | `npm prune` + reinstall |
-| Lock file | `go.sum` | `poetry.lock` | `package-lock.json` |
-| Commit lock? | **yes** | **yes** | **yes** |
+| Action                  | Go                   | Python (poetry)  | TypeScript (npm)        |
+| ----------------------- | -------------------- | ---------------- | ----------------------- |
+| Init project            | `go mod init <path>` | `poetry init`    | `npm init`              |
+| Add a dep               | `go get pkg@v`       | `poetry add pkg` | `npm install pkg`       |
+| Sync manifest ↔ imports | `go mod tidy`        | (manual)         | `npm prune` + reinstall |
+| Lock file               | `go.sum`             | `poetry.lock`    | `package-lock.json`     |
+| Commit lock?            | **yes**              | **yes**          | **yes**                 |

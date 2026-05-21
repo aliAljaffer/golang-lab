@@ -11,15 +11,15 @@ Decode a JSON response into a typed struct.
 
 ## Comparison
 
-| Concept | Go | Python | TS |
-|---|---|---|---|
-| Parse JSON to type | `json.NewDecoder(r).Decode(&v)` | `pydantic.parse_obj_as(T, r.json())` | `JSON.parse(text) as T` |
-| Field rename | `` `json:"name"` `` | `Field(alias="name")` | n/a (or class-transformer) |
-| Optional field | `omitempty` (marshal-only) | `Optional[...]` | `?` |
-| Unknown fields | silently dropped | strict by default in pydantic | n/a |
+| Concept            | Go                              | Python                               | TS                         |
+| ------------------ | ------------------------------- | ------------------------------------ | -------------------------- |
+| Parse JSON to type | `json.NewDecoder(r).Decode(&v)` | `pydantic.parse_obj_as(T, r.json())` | `JSON.parse(text) as T`    |
+| Field rename       | `` `json:"name"` ``             | `Field(alias="name")`                | n/a (or class-transformer) |
+| Optional field     | `omitempty` (marshal-only)      | `Optional[...]`                      | `?`                        |
+| Unknown fields     | silently dropped                | strict by default in pydantic        | n/a                        |
 
 ## Run
 
-```
+```bash
 go run .
 ```

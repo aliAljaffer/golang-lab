@@ -11,15 +11,15 @@ The 30-second version of an HTTP server in Go.
 
 ## Comparison
 
-| Concept | Go | Python (Flask) | TS (Express) | Java (Spring) |
-|---|---|---|---|---|
-| Minimal server | `http.ListenAndServe(":8080", mux)` | `app.run()` | `app.listen(8080)` | `SpringApplication.run()` |
-| Route a path | `mux.HandleFunc("GET /hello", h)` | `@app.route("/hello")` | `app.get("/hello", h)` | `@GetMapping("/hello")` |
-| Handler signature | `func(w, r)` | `def handler():` | `(req, res) => {}` | `@GetMapping ... returns X` |
+| Concept           | Go                                  | Python (Flask)         | TS (Express)           | Java (Spring)               |
+| ----------------- | ----------------------------------- | ---------------------- | ---------------------- | --------------------------- |
+| Minimal server    | `http.ListenAndServe(":8080", mux)` | `app.run()`            | `app.listen(8080)`     | `SpringApplication.run()`   |
+| Route a path      | `mux.HandleFunc("GET /hello", h)`   | `@app.route("/hello")` | `app.get("/hello", h)` | `@GetMapping("/hello")`     |
+| Handler signature | `func(w, r)`                        | `def handler():`       | `(req, res) => {}`     | `@GetMapping ... returns X` |
 
 ## Run
 
-```
+```bash
 go run .
 curl -i http://localhost:8080/hello
 curl -i 'http://localhost:8080/echo?msg=hi'

@@ -1,4 +1,4 @@
-# golang-learning — A Self-Paced Go-for-DevOps Bootcamp
+# golang-lab — A Self-Paced Go-for-DevOps Bootcamp
 
 A hands-on, self-paced curriculum to take you from "I've heard of Go" to "I can ship Go-based DevOps tooling." Free, public, and community-supported.
 
@@ -20,8 +20,8 @@ Also designed to open cleanly as an [Obsidian](https://obsidian.md/) vault for p
 ## How to participate
 
 - **Work through the sections** at your own pace (suggested: 1 section per week, no due dates).
-- **Ask for help in [Discussions](https://github.com/alialjaffer/golang-learning/discussions)** when stuck. Open-ended questions live here.
-- **File an [Issue](https://github.com/alialjaffer/golang-learning/issues)** when you hit a bug, typo, or have a concrete improvement. Three templates are provided.
+- **Ask for help in [Discussions](https://github.com/alialjaffer/golang-lab/discussions)** when stuck. Open-ended questions live here.
+- **File an [Issue](https://github.com/alialjaffer/golang-lab/issues)** when you hit a bug, typo, or have a concrete improvement. Three templates are provided.
 - **Help others** if you've already finished a section. That's how this becomes more than a personal repo.
 
 See [`BOOTCAMP.md`](./BOOTCAMP.md) for the full participation guide and how to ask a good question.
@@ -30,25 +30,25 @@ See [`BOOTCAMP.md`](./BOOTCAMP.md) for the full participation guide and how to a
 
 Each section is a folder. Status legend: ☐ not started · ◐ in progress · ☑ done.
 
-| #  | Section | Status |
-|----|---------|--------|
-| 00 | [Setup & toolchain](./00-setup/README.md) | ☑ |
-| 01 | [CLI tools](./01-cli-tools/README.md) | ☐ |
-| 02 | [Files & OS](./02-files-and-os/README.md) | ☐ |
-| 03 | [HTTP clients](./03-http-clients/README.md) | ☐ |
-| 04 | [HTTP servers](./04-http-servers/README.md) | ☐ |
-| 05 | [Concurrency](./05-concurrency/README.md) | ☐ |
-| 06 | [Testing](./06-testing/README.md) | ☐ |
-| 07 | [AWS SDK](./07-aws/README.md) | ☐ |
-| 08 | [Kubernetes](./08-kubernetes/README.md) | ☐ |
-| 09 | [Docker](./09-docker/README.md) | ☐ |
-| 10 | [Observability](./10-observability/README.md) | ☐ |
-| 11 | [IaC tooling](./11-iac-tooling/README.md) | ☐ |
-| ★  | [End-to-end projects](./projects/README.md) | ☐ |
+| #   | Section                                       | Status |
+| --- | --------------------------------------------- | ------ |
+| 00  | [Setup & toolchain](./00-setup/README.md)     | ☑      |
+| 01  | [CLI tools](./01-cli-tools/README.md)         | ☐      |
+| 02  | [Files & OS](./02-files-and-os/README.md)     | ☐      |
+| 03  | [HTTP clients](./03-http-clients/README.md)   | ☐      |
+| 04  | [HTTP servers](./04-http-servers/README.md)   | ☐      |
+| 05  | [Concurrency](./05-concurrency/README.md)     | ☐      |
+| 06  | [Testing](./06-testing/README.md)             | ☐      |
+| 07  | [AWS SDK](./07-aws/README.md)                 | ☐      |
+| 08  | [Kubernetes](./08-kubernetes/README.md)       | ☐      |
+| 09  | [Docker](./09-docker/README.md)               | ☐      |
+| 10  | [Observability](./10-observability/README.md) | ☐      |
+| 11  | [IaC tooling](./11-iac-tooling/README.md)     | ☐      |
+| ★   | [End-to-end projects](./projects/README.md)   | ☐      |
 
 ## How this repo is organized
 
-```
+```bash
 NN-topic/
 ├── README.md         polished notes, the public-facing teaching content
 ├── PLAN.md           working roadmap — what's planned, what's done, what's next

@@ -6,7 +6,7 @@ flags.
 
 ## Spec
 
-```
+```bash
 logrotate --file PATH                  # rotate PATH once
 logrotate --file PATH --keep-days 7    # delete rotated files older than 7 days
 ```
@@ -24,18 +24,18 @@ Exit `0` on success, `1` on any I/O error, `2` on flag misuse (cobra handles).
 
 The scaffold splits the work into testable functions:
 
-| Function | Job |
-|---|---|
-| `rotateOnce(path)` | Steps 1–3 above. Pure file I/O, no flag parsing. |
-| `gzipFile(src, dst)` | Read `src`, write gzip-compressed bytes to `dst`. |
-| `pruneOld(dir, prefix, keepDays, now)` | Step 4. `now` is injected so tests can pin time. |
-| `newRootCmd()` | cobra wiring. |
+| Function                               | Job                                               |
+| -------------------------------------- | ------------------------------------------------- |
+| `rotateOnce(path)`                     | Steps 1–3 above. Pure file I/O, no flag parsing.  |
+| `gzipFile(src, dst)`                   | Read `src`, write gzip-compressed bytes to `dst`. |
+| `pruneOld(dir, prefix, keepDays, now)` | Step 4. `now` is injected so tests can pin time.  |
+| `newRootCmd()`                         | cobra wiring.                                     |
 
 Pulling out `gzipFile` and `pruneOld` keeps tests fast — no flag parsing, no `time.Now()` calls inside the logic.
 
 ## Run the tests
 
-```
+```bash
 go test -tags=exercise ./02-files-and-os/mini-project/...
 ```
 

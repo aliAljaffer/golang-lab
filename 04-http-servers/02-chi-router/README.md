@@ -12,16 +12,16 @@ For a single `/hello` endpoint, stdlib is enough. For anything more than a handf
 
 ## Comparison
 
-| Concept | stdlib mux (Go 1.22+) | chi |
-|---|---|---|
-| Path param | `r.PathValue("id")` | `chi.URLParam(r, "id")` |
-| Route group | not built in | `r.Route("/admin", func(sub chi.Router) {...})` |
-| Method routing | `"GET /users"` pattern | `r.Get("/users", ...)` / `r.Post(...)` |
-| Middleware | wrap by hand | `r.Use(mw)` |
+| Concept        | stdlib mux (Go 1.22+)  | chi                                             |
+| -------------- | ---------------------- | ----------------------------------------------- |
+| Path param     | `r.PathValue("id")`    | `chi.URLParam(r, "id")`                         |
+| Route group    | not built in           | `r.Route("/admin", func(sub chi.Router) {...})` |
+| Method routing | `"GET /users"` pattern | `r.Get("/users", ...)` / `r.Post(...)`          |
+| Middleware     | wrap by hand           | `r.Use(mw)`                                     |
 
 ## Run
 
-```
+```bash
 go run .
 curl -i http://localhost:8080/users/42
 curl -i -X POST http://localhost:8080/users -d '{"name":"ali"}'

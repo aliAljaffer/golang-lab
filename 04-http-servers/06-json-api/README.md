@@ -24,7 +24,7 @@ By default `encoding/json` silently ignores unknown fields. That hides typos on 
 A JSON API should fail in JSON:
 
 ```json
-{"error": "name is required"}
+{ "error": "name is required" }
 ```
 
 Not `name is required\n` with `Content-Type: text/plain`. Consistency matters when the client is parsing responses.
@@ -35,18 +35,18 @@ Decoding only checks structure. After Decode, check business rules: required fie
 
 ## Comparison
 
-| Concept | Go | Express | FastAPI |
-|---|---|---|---|
-| Decode JSON body | `json.NewDecoder(r.Body).Decode(&v)` | `app.use(express.json())` then `req.body` | typed via Pydantic params |
-| Strict mode | `DisallowUnknownFields()` | `strict: true` on body-parser | Pydantic `extra="forbid"` |
-| Body size limit | `http.MaxBytesReader` | `express.json({limit: '1mb'})` | uvicorn `--limit-request-line` |
-| Auto validation | hand-rolled | hand-rolled | Pydantic models |
+| Concept          | Go                                   | Express                                   | FastAPI                        |
+| ---------------- | ------------------------------------ | ----------------------------------------- | ------------------------------ |
+| Decode JSON body | `json.NewDecoder(r.Body).Decode(&v)` | `app.use(express.json())` then `req.body` | typed via Pydantic params      |
+| Strict mode      | `DisallowUnknownFields()`            | `strict: true` on body-parser             | Pydantic `extra="forbid"`      |
+| Body size limit  | `http.MaxBytesReader`                | `express.json({limit: '1mb'})`            | uvicorn `--limit-request-line` |
+| Auto validation  | hand-rolled                          | hand-rolled                               | Pydantic models                |
 
 Go's stdlib is deliberately low-level. For larger projects with lots of endpoints, libraries like `go-playground/validator` add tag-based validation.
 
 ## Run
 
-```
+```bash
 go run .
 curl -i -X POST http://localhost:8080/users -H 'Content-Type: application/json' \
      -d '{"name":"ali","email":"ali@example.com"}'

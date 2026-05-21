@@ -16,11 +16,11 @@ It's just a function. `next` is the rest of the chain.
 
 ## Three classics
 
-| Middleware | Why |
-|---|---|
-| **Logging** | observability — without this, you have no idea what your server is doing in prod |
-| **Recovery** | one buggy handler shouldn't kill the whole process. `recover()` catches panics inside the deferred function. |
-| **Request ID** | trace a request across services. Either honor an incoming `X-Request-ID` or mint a fresh one. |
+| Middleware     | Why                                                                                                          |
+| -------------- | ------------------------------------------------------------------------------------------------------------ |
+| **Logging**    | observability — without this, you have no idea what your server is doing in prod                             |
+| **Recovery**   | one buggy handler shouldn't kill the whole process. `recover()` catches panics inside the deferred function. |
+| **Request ID** | trace a request across services. Either honor an incoming `X-Request-ID` or mint a fresh one.                |
 
 ## Order matters
 
@@ -50,14 +50,14 @@ This is the same trick `chi/middleware.Logger`, `gorilla/handlers.LoggingHandler
 
 ## Comparison
 
-| Concept | Go | Express | Flask |
-|---|---|---|---|
-| Middleware | `func(http.Handler) http.Handler` | `app.use((req,res,next) => {...})` | `@app.before_request` / `@app.after_request` |
-| Panic recovery | `defer recover()` inside the middleware | unhandled exception → process crash unless you have an error handler | exception handler decorator |
+| Concept        | Go                                      | Express                                                              | Flask                                        |
+| -------------- | --------------------------------------- | -------------------------------------------------------------------- | -------------------------------------------- |
+| Middleware     | `func(http.Handler) http.Handler`       | `app.use((req,res,next) => {...})`                                   | `@app.before_request` / `@app.after_request` |
+| Panic recovery | `defer recover()` inside the middleware | unhandled exception → process crash unless you have an error handler | exception handler decorator                  |
 
 ## Run
 
-```
+```bash
 go run .
 curl -i http://localhost:8080/hi
 curl -i http://localhost:8080/boom

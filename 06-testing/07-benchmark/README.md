@@ -19,7 +19,7 @@
 
 ## Run
 
-```
+```bash
 go test -bench=. ./06-testing/07-benchmark/...
 go test -bench=. -benchmem ./06-testing/07-benchmark/...
 go test -bench=. -count=10 ./06-testing/07-benchmark/... | tee a.txt
@@ -29,7 +29,7 @@ benchstat a.txt b.txt
 
 ## Comparison
 
-| Concept | Go | Python | TS / Node | Java |
-|---|---|---|---|---|
-| Builtin | `testing.B` | (none — use `pytest-benchmark` or `timeit`) | (none — use `tinybench`/`benchmark.js`) | JMH |
-| Stat compare | `benchstat` | `pytest-benchmark compare` | manual | JMH baseline |
+| Concept      | Go          | Python                                      | TS / Node                               | Java         |
+| ------------ | ----------- | ------------------------------------------- | --------------------------------------- | ------------ |
+| Builtin      | `testing.B` | (none — use `pytest-benchmark` or `timeit`) | (none — use `tinybench`/`benchmark.js`) | JMH          |
+| Stat compare | `benchstat` | `pytest-benchmark compare`                  | manual                                  | JMH baseline |

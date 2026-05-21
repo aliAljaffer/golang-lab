@@ -17,13 +17,13 @@ Convert five separate tests into a single table-driven test.
 
 ## What to think about
 
-- **Boundary coverage matters.** `Classify(90)` and `Classify(89)` exercise *different* branches. A test of only `Classify(95)` and `Classify(85)` would pass even if the code said `case score >= 91` (a bug). Always include the boundary values.
+- **Boundary coverage matters.** `Classify(90)` and `Classify(89)` exercise _different_ branches. A test of only `Classify(95)` and `Classify(85)` would pass even if the code said `case score >= 91` (a bug). Always include the boundary values.
 - **Name the cases for readable failures.** A case named `"90 is A"` says more in the failure output than `"case 3"`.
 - **One table = one assertion shape.** If you find yourself wanting `if/else` inside the loop, you've outgrown a table and should split the test.
 
 ## Verify
 
-```
+```bash
 go test -tags=exercise -v ./06-testing/exercises/01-table-tests/...
 ```
 

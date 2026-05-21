@@ -17,7 +17,7 @@ client := &http.Client{Timeout: 10 * time.Second}
 resp, err := client.Get(url)
 ```
 
-The `Timeout` field is a wall-clock budget for the *entire* request: DNS + dial + TLS handshake + sending the request + reading the response. It is the simplest correct knob.
+The `Timeout` field is a wall-clock budget for the _entire_ request: DNS + dial + TLS handshake + sending the request + reading the response. It is the simplest correct knob.
 
 ## When you need more control
 
@@ -30,13 +30,13 @@ If you need to separate "time to first byte" from "time to read the whole body" 
 
 ## Comparison
 
-| Concept | Go | Python | TS |
-|---|---|---|---|
-| Per-request timeout | `client.Timeout` | `requests.get(..., timeout=10)` | `AbortController` + `setTimeout` |
-| Default | **none** (infinity) | none (also a footgun) | none |
+| Concept             | Go                  | Python                          | TS                               |
+| ------------------- | ------------------- | ------------------------------- | -------------------------------- |
+| Per-request timeout | `client.Timeout`    | `requests.get(..., timeout=10)` | `AbortController` + `setTimeout` |
+| Default             | **none** (infinity) | none (also a footgun)           | none                             |
 
 ## Run
 
-```
+```bash
 go run .
 ```

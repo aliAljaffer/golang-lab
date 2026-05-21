@@ -13,7 +13,7 @@ The smallest possible Go test, and the two failure verbs.
 
 ## Run
 
-```
+```bash
 go test ./06-testing/01-basic-test/...
 go test -v ./06-testing/01-basic-test/...   # show each test name + PASS/FAIL
 go test -run TestAdd ./06-testing/01-basic-test/...  # filter by name
@@ -21,12 +21,12 @@ go test -run TestAdd ./06-testing/01-basic-test/...  # filter by name
 
 ## Comparison
 
-| Concept | Go | pytest | jest |
-|---|---|---|---|
-| Test file | `foo_test.go` | `test_foo.py` | `foo.test.ts` |
-| Test func | `func TestX(t *testing.T)` | `def test_x():` | `test('x', () => {})` |
-| Assert | `if got != want { t.Errorf(...) }` | `assert got == want` | `expect(got).toBe(want)` |
-| Continue on fail | `t.Errorf` | (default) | (default) |
-| Abort on fail | `t.Fatalf` | (default) | (use `expect().toThrow`) |
+| Concept          | Go                                 | pytest               | jest                     |
+| ---------------- | ---------------------------------- | -------------------- | ------------------------ |
+| Test file        | `foo_test.go`                      | `test_foo.py`        | `foo.test.ts`            |
+| Test func        | `func TestX(t *testing.T)`         | `def test_x():`      | `test('x', () => {})`    |
+| Assert           | `if got != want { t.Errorf(...) }` | `assert got == want` | `expect(got).toBe(want)` |
+| Continue on fail | `t.Errorf`                         | (default)            | (default)                |
+| Abort on fail    | `t.Fatalf`                         | (default)            | (use `expect().toThrow`) |
 
 No assertion library is idiomatic — plain `if` + `t.Errorf` is the convention.

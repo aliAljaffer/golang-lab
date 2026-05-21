@@ -1,4 +1,4 @@
-module github.com/alialjaffer/golang-learning
+module github.com/alialjaffer/golang-lab
 
 go 1.23.0
 

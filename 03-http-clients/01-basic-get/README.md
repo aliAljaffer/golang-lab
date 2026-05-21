@@ -11,15 +11,15 @@ The 30-second version of an HTTP request in Go.
 
 ## Comparison
 
-| Concept | Go | Python | TS |
-|---|---|---|---|
-| GET request | `http.Get(url)` | `requests.get(url)` | `await fetch(url)` |
-| Read body | `io.ReadAll(resp.Body)` | `resp.text` | `await resp.text()` |
-| Close body | `defer resp.Body.Close()` | context-manager handles it | auto |
-| Status code | `resp.StatusCode` | `resp.status_code` | `resp.status` |
+| Concept     | Go                        | Python                     | TS                  |
+| ----------- | ------------------------- | -------------------------- | ------------------- |
+| GET request | `http.Get(url)`           | `requests.get(url)`        | `await fetch(url)`  |
+| Read body   | `io.ReadAll(resp.Body)`   | `resp.text`                | `await resp.text()` |
+| Close body  | `defer resp.Body.Close()` | context-manager handles it | auto                |
+| Status code | `resp.StatusCode`         | `resp.status_code`         | `resp.status`       |
 
 ## Run
 
-```
+```bash
 go run . https://httpbin.org/get
 ```

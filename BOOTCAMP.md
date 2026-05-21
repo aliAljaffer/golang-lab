@@ -23,16 +23,18 @@ A hands-on, self-paced curriculum to take you from "I've heard of Go" to "I can 
 
 See the [roadmap table](./README.md#roadmap) in the main README.
 
-Recommended order: top to bottom (00 → 11 → projects). Each section builds on earlier ones. You *can* skip around once you're past `00-setup` and `06-testing`, but you'll see callbacks to earlier sections.
+Recommended order: top to bottom (00 → 11 → projects). Each section builds on earlier ones. You _can_ skip around once you're past `00-setup` and `06-testing`, but you'll see callbacks to earlier sections.
 
 ## How to ask for help
 
-**Use [GitHub Discussions](https://github.com/alialjaffer/golang-learning/discussions)** for:
+**Use [GitHub Discussions](https://github.com/alialjaffer/golang-lab/discussions)** for:
+
 - "I'm stuck on exercise X" — share your code (a gist or branch link) and the error/test output
 - Concept questions ("why does Go do X this way?")
 - Show-and-tell ("I built something on top of section 05")
 
-**Use [GitHub Issues](https://github.com/alialjaffer/golang-learning/issues)** for:
+**Use [GitHub Issues](https://github.com/alialjaffer/golang-lab/issues)** for:
+
 - Bugs in the repo's code or test files
 - Typos, broken links, factual errors
 - Improvement suggestions

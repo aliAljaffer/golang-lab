@@ -15,7 +15,7 @@ func Pipe(input io.Reader, cmds ...[]string) (stdout []byte, err error)
 Where each `cmds[i]` is `[binary, arg1, arg2, ...]`. The function should run
 all commands concurrently and pipe them:
 
-```
+```bash
 input -> cmds[0] -> cmds[1] -> ... -> stdout
 ```
 
@@ -30,7 +30,7 @@ If any command exits non-zero, return a non-nil error.
 
 ## Run
 
-```
+```bash
 go test -tags=exercise ./02-files-and-os/exercises/03-pipe-cmd/...
 ```
 

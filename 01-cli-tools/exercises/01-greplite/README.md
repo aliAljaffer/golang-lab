@@ -14,14 +14,14 @@ func Grep(input io.Reader, pattern string, opts Options) ([]Match, error)
 
 - Scan `input` line by line with `bufio.Scanner`.
 - Return one `Match` per line containing `pattern` as a substring.
-- `Options.IgnoreCase`: compare case-insensitively (`strings.ToLower` on both sides, or `strings.EqualFold` — but you need *contains*, so think about it).
+- `Options.IgnoreCase`: compare case-insensitively (`strings.ToLower` on both sides, or `strings.EqualFold` — but you need _contains_, so think about it).
 - `Options.LineNumbers`: populate `Match.LineNumber` (1-based). When false, leave it at `0`.
 - Empty pattern matches every line.
 - Strip the trailing newline from `Match.Text` (Scanner does this for you).
 
 ## Run
 
-```
+```bash
 go test ./01-cli-tools/exercises/01-greplite/...
 ```
 

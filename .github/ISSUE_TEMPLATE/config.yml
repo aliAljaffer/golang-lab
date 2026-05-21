@@ -1,8 +1,8 @@
 blank_issues_enabled: false
 contact_links:
-  - name: Stuck on an exercise (open-ended)
-    url: https://github.com/alialjaffer/golang-learning/discussions/categories/help
-    about: For "I can't get this to work" questions, prefer Discussions — they're easier to search and others can chime in.
-  - name: Show & tell
-    url: https://github.com/alialjaffer/golang-learning/discussions/categories/show-and-tell
-    about: Built something on top of a section? Share it here.
+- name: Stuck on an exercise (open-ended)
+  url: https://github.com/alialjaffer/golang-lab/discussions/categories/help
+  about: For "I can't get this to work" questions, prefer Discussions — they're easier to search and others can chime in.
+- name: Show & tell
+  url: https://github.com/alialjaffer/golang-lab/discussions/categories/show-and-tell
+  about: Built something on top of a section? Share it here.

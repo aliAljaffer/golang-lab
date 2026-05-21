@@ -2,7 +2,7 @@
 
 Build a small CLI shaped like `kubectl`:
 
-```
+```bash
 tool get pods
 tool get pod NAME
 tool create pod NAME --image=nginx
@@ -13,16 +13,16 @@ tool delete pod NAME
 
 Two files split the work along a common Go boundary:
 
-| File | What goes here |
-|---|---|
+| File       | What goes here                                                                             |
+| ---------- | ------------------------------------------------------------------------------------------ |
 | `store.go` | Pure logic: `Store`, `Pod`, `CreatePod` / `GetPod` / `ListPods` / `DeletePod`. **Tested.** |
-| `cmd.go` | Cobra wiring. Builds the command tree, calls into `Store`. Not unit-tested. |
+| `cmd.go`   | Cobra wiring. Builds the command tree, calls into `Store`. Not unit-tested.                |
 
 This split is the pattern: keep business logic in a plain package with no CLI imports; the CLI is a thin shell over it. You can swap cobra for a different framework, or expose the same logic as an HTTP API, without rewriting `store.go`.
 
 ## Run the tests
 
-```
+```bash
 go test ./01-cli-tools/exercises/03-multi-subcommand/...
 ```
 

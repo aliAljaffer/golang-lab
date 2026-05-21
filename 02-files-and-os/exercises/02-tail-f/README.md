@@ -30,7 +30,7 @@ Splitting "what's new since I last looked" from the polling loop makes the logic
 
 ## Run
 
-```
+```bash
 go test -tags=exercise ./02-files-and-os/exercises/02-tail-f/...
 ```
 

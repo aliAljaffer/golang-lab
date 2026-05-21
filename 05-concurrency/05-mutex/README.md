@@ -25,7 +25,7 @@ If you're tempted to write a manager goroutine that holds a map and answers requ
 
 ## The race detector
 
-```
+```bash
 go run -race .
 go test -race ./...
 ```
@@ -34,15 +34,15 @@ go test -race ./...
 
 ## Comparison
 
-| Concept | Go | Python | TS / Node | Java |
-|---|---|---|---|---|
-| Mutex | `sync.Mutex` | `threading.Lock` | (rare — single-threaded) | `ReentrantLock` (reentrant!) |
-| RWMutex | `sync.RWMutex` | `threading.RLock`-ish | n/a | `ReentrantReadWriteLock` |
-| Concurrent map | `sync.Map` (specialized) | `dict` + `Lock` | `Map` (single-threaded) | `ConcurrentHashMap` |
+| Concept        | Go                       | Python                | TS / Node                | Java                         |
+| -------------- | ------------------------ | --------------------- | ------------------------ | ---------------------------- |
+| Mutex          | `sync.Mutex`             | `threading.Lock`      | (rare — single-threaded) | `ReentrantLock` (reentrant!) |
+| RWMutex        | `sync.RWMutex`           | `threading.RLock`-ish | n/a                      | `ReentrantReadWriteLock`     |
+| Concurrent map | `sync.Map` (specialized) | `dict` + `Lock`       | `Map` (single-threaded)  | `ConcurrentHashMap`          |
 
 ## Run
 
-```
+```bash
 go run .
 go run -race .
 ```

@@ -24,18 +24,18 @@ for {
 }
 ```
 
-A goroutine that processes work *and* listens for cancellation. This is the workhorse pattern in production Go.
+A goroutine that processes work _and_ listens for cancellation. This is the workhorse pattern in production Go.
 
 ## Comparison
 
-| Concept | Go | Python | TS / Node |
-|---|---|---|---|
-| Multiplex async sources | `select` | `asyncio.wait(..., return_when=FIRST_COMPLETED)` | `Promise.race(...)` |
-| Timeout | `case <-time.After(d):` | `asyncio.wait_for(..., timeout=d)` | `Promise.race([p, sleep(d)])` |
-| Non-blocking try | `select { default: ... }` | `q.get_nowait()` | n/a |
+| Concept                 | Go                        | Python                                           | TS / Node                     |
+| ----------------------- | ------------------------- | ------------------------------------------------ | ----------------------------- |
+| Multiplex async sources | `select`                  | `asyncio.wait(..., return_when=FIRST_COMPLETED)` | `Promise.race(...)`           |
+| Timeout                 | `case <-time.After(d):`   | `asyncio.wait_for(..., timeout=d)`               | `Promise.race([p, sleep(d)])` |
+| Non-blocking try        | `select { default: ... }` | `q.get_nowait()`                                 | n/a                           |
 
 ## Run
 
-```
+```bash
 go run .
 ```

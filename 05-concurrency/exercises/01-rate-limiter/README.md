@@ -25,7 +25,7 @@ Mutex-based implementations work too but they're 2× the code and easier to dead
 
 ## Run the tests
 
-```
+```bash
 go test -tags=exercise ./05-concurrency/exercises/01-rate-limiter/...
 ```
 

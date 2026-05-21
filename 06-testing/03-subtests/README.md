@@ -19,7 +19,7 @@ Pre-Go-1.22: when using `t.Parallel()` inside a `for _, tc := range ...` loop, y
 
 ## Run
 
-```
+```bash
 go test -v ./06-testing/03-subtests/...
 go test -v -run TestRepeat/single ./06-testing/03-subtests/...
 ```

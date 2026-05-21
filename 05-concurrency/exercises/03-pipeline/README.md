@@ -39,7 +39,7 @@ Pipelines compose: `Sum(ctx, Square(ctx, Source(ctx, nums)))` runs the three sta
 
 ## Run the tests
 
-```
+```bash
 go test -tags=exercise ./05-concurrency/exercises/03-pipeline/...
 ```
 

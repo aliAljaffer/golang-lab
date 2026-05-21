@@ -7,7 +7,8 @@
 // so you can verify your headers landed.
 //
 // Run:
-//   GH_TOKEN=ghp_xxx go run .       # token is optional, fake token works
+//
+//	GH_TOKEN=ghp_xxx go run .       # token is optional, fake token works
 package main
 
 import (
@@ -30,7 +31,7 @@ func main() {
 
 	// TODO: req, err := http.NewRequest(http.MethodGet, url, nil). Handle error.
 	// TODO: req.Header.Set("Authorization", "Bearer " + token)
-	// TODO: req.Header.Set("User-Agent", "golang-learning/0.1 (https://github.com/alialjaffer/golang-learning)")
+	// TODO: req.Header.Set("User-Agent", "golang-lab/0.1 (https://github.com/alialjaffer/golang-lab)")
 	// TODO: req.Header.Set("Accept", "application/json")
 	// TODO: resp, err := client.Do(req). Handle error. defer Body.Close().
 	// TODO: io.Copy(os.Stdout, resp.Body) — print what the server saw.

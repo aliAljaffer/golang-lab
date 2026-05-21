@@ -24,14 +24,14 @@ resp, err := client.Do(req)
 
 ## Comparison
 
-| Concept | Go | Python | TS |
-|---|---|---|---|
-| Build request | `http.NewRequest(...)` | `requests.Request(...)` | `new Request(...)` |
-| Set header | `req.Header.Set(k, v)` | `headers={k: v}` | `req.headers.set(k, v)` |
-| Bearer auth | manual | `requests.get(..., headers={"Authorization": "Bearer ..."})` | manual |
+| Concept       | Go                     | Python                                                       | TS                      |
+| ------------- | ---------------------- | ------------------------------------------------------------ | ----------------------- |
+| Build request | `http.NewRequest(...)` | `requests.Request(...)`                                      | `new Request(...)`      |
+| Set header    | `req.Header.Set(k, v)` | `headers={k: v}`                                             | `req.headers.set(k, v)` |
+| Bearer auth   | manual                 | `requests.get(..., headers={"Authorization": "Bearer ..."})` | manual                  |
 
 ## Run
 
-```
+```bash
 GH_TOKEN=fake go run .
 ```

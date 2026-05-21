@@ -21,21 +21,21 @@ If you skip this section and dive into code, you'll spend the next month vaguely
 
 ## Mental model from other languages
 
-| Concept | Go | Python | TypeScript / Node | Java | Bash |
-|---|---|---|---|---|---|
-| Dependency manifest | `go.mod` | `pyproject.toml` | `package.json` | `pom.xml` | — |
-| Lock file | `go.sum` | `poetry.lock` / `uv.lock` | `package-lock.json` | — | — |
-| Init project | `go mod init <path>` | `poetry init` | `npm init` | `mvn archetype:generate` | — |
-| Install deps | `go mod tidy` | `poetry install` | `npm install` | `mvn install` | — |
-| Add a dep | `go get <pkg>@<v>` | `poetry add <pkg>` | `npm install <pkg>` | edit pom.xml | — |
-| Run a script | `go run <pkg>` | `python script.py` | `npx tsx script.ts` | `java -jar` | `bash script.sh` |
-| Build artifact | `go build` → single binary | `pyinstaller` | `pkg` / `esbuild --bundle` | `mvn package` → `.jar` | — |
-| Install binary globally | `go install <pkg>@<v>` | `pipx install <pkg>` | `npm install -g` | — | — |
-| Format code | `go fmt` (mandatory) | `black` (optional) | `prettier` (optional) | `google-java-format` | — |
-| Static checks | `go vet` (built-in) | `mypy` / `ruff` | `tsc --noEmit` / `eslint` | `spotbugs` | `shellcheck` |
-| Run tests | `go test ./...` | `pytest` | `npm test` | `mvn test` | — |
+| Concept                 | Go                         | Python                    | TypeScript / Node          | Java                     | Bash             |
+| ----------------------- | -------------------------- | ------------------------- | -------------------------- | ------------------------ | ---------------- |
+| Dependency manifest     | `go.mod`                   | `pyproject.toml`          | `package.json`             | `pom.xml`                | —                |
+| Lock file               | `go.sum`                   | `poetry.lock` / `uv.lock` | `package-lock.json`        | —                        | —                |
+| Init project            | `go mod init <path>`       | `poetry init`             | `npm init`                 | `mvn archetype:generate` | —                |
+| Install deps            | `go mod tidy`              | `poetry install`          | `npm install`              | `mvn install`            | —                |
+| Add a dep               | `go get <pkg>@<v>`         | `poetry add <pkg>`        | `npm install <pkg>`        | edit pom.xml             | —                |
+| Run a script            | `go run <pkg>`             | `python script.py`        | `npx tsx script.ts`        | `java -jar`              | `bash script.sh` |
+| Build artifact          | `go build` → single binary | `pyinstaller`             | `pkg` / `esbuild --bundle` | `mvn package` → `.jar`   | —                |
+| Install binary globally | `go install <pkg>@<v>`     | `pipx install <pkg>`      | `npm install -g`           | —                        | —                |
+| Format code             | `go fmt` (mandatory)       | `black` (optional)        | `prettier` (optional)      | `google-java-format`     | —                |
+| Static checks           | `go vet` (built-in)        | `mypy` / `ruff`           | `tsc --noEmit` / `eslint`  | `spotbugs`               | `shellcheck`     |
+| Run tests               | `go test ./...`            | `pytest`                  | `npm test`                 | `mvn test`               | —                |
 
-**The key cultural difference:** Go bakes opinions into the toolchain. Formatting isn't a discussion (`go fmt` is one way). Tests don't need a framework. The single static binary output is *the* reason `kubectl`, `terraform`, `docker`, `helm`, `gh`, and `prometheus` are all in Go — DevOps tooling needs to deploy as one file with no runtime.
+**The key cultural difference:** Go bakes opinions into the toolchain. Formatting isn't a discussion (`go fmt` is one way). Tests don't need a framework. The single static binary output is _the_ reason `kubectl`, `terraform`, `docker`, `helm`, `gh`, and `prometheus` are all in Go — DevOps tooling needs to deploy as one file with no runtime.
 
 ---
 
@@ -58,11 +58,13 @@ No Docker required, no cross-compile toolchain to install, no `manylinux` wheels
 ## Installing Go
 
 ### macOS
+
 ```bash
 brew install go
 ```
 
 ### Linux
+
 ```bash
 # Download the latest from https://go.dev/dl/
 curl -LO https://go.dev/dl/go1.22.0.linux-amd64.tar.gz
@@ -72,10 +74,12 @@ source ~/.bashrc
 ```
 
 ### Multiple versions (recommended for serious dev)
+
 - [`asdf`](https://asdf-vm.com/) — `asdf install golang 1.22.0`
 - [`gvm`](https://github.com/moovweb/gvm)
 
 ### Verify
+
 ```bash
 go version
 # go version go1.22.0 darwin/arm64
@@ -102,24 +106,25 @@ gofmt -w .                # alternate to `go fmt`, writes files in place
 ```
 
 ### `./...` — what does it mean?
+
 A pattern meaning "this directory and all subdirectories recursively". So `go test ./...` runs every test in your repo. Common.
 
 ---
 
 ## The files every Go project has
 
-| File | Purpose | Analog |
-|---|---|---|
-| `go.mod` | Module path, Go version, direct dependencies | `package.json`, `pyproject.toml`, `pom.xml` |
-| `go.sum` | Cryptographic checksums for every dep (direct + transitive). **Commit this.** | `package-lock.json`, `poetry.lock` |
-| `main.go` | Entry point for executables. Must declare `package main` and define `func main()`. | Python's `if __name__ == "__main__":`; Java's `public static void main` |
-| `*_test.go` | Test files. Discovered automatically — no config. | `test_*.py` for pytest |
-| `vendor/` *(optional)* | Locally vendored deps. Most repos skip this. | `node_modules/` (but optional in Go) |
+| File                   | Purpose                                                                            | Analog                                                                  |
+| ---------------------- | ---------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| `go.mod`               | Module path, Go version, direct dependencies                                       | `package.json`, `pyproject.toml`, `pom.xml`                             |
+| `go.sum`               | Cryptographic checksums for every dep (direct + transitive). **Commit this.**      | `package-lock.json`, `poetry.lock`                                      |
+| `main.go`              | Entry point for executables. Must declare `package main` and define `func main()`. | Python's `if __name__ == "__main__":`; Java's `public static void main` |
+| `*_test.go`            | Test files. Discovered automatically — no config.                                  | `test_*.py` for pytest                                                  |
+| `vendor/` _(optional)_ | Locally vendored deps. Most repos skip this.                                       | `node_modules/` (but optional in Go)                                    |
 
 ### Anatomy of `go.mod`
 
-```
-module github.com/alialjaffer/golang-learning   // the import path of this module
+```go
+module github.com/alialjaffer/golang-lab   // the import path of this module
 
 go 1.22                                          // minimum Go version
 
@@ -157,6 +162,7 @@ func main() {                 // entry point for `package main`
 ```
 
 Key rules:
+
 - One `package` declaration per file. All files in a directory must declare the same package.
 - A package called `main` is an executable; everything else is a library.
 - Unused imports are **compile errors**. (Yes, really. `gopls` removes them on save.)
@@ -168,11 +174,11 @@ Key rules:
 
 The community-maintained [`golang-standards/project-layout`](https://github.com/golang-standards/project-layout) describes patterns:
 
-| Folder | When to use |
-|---|---|
-| `cmd/<binary-name>/` | When your repo produces multiple binaries; one `main.go` per subfolder |
-| `internal/` | Code you don't want imported by other modules (enforced by the compiler) |
-| `pkg/` | Code intended to be importable by others (controversial — many devs skip this) |
+| Folder               | When to use                                                                    |
+| -------------------- | ------------------------------------------------------------------------------ |
+| `cmd/<binary-name>/` | When your repo produces multiple binaries; one `main.go` per subfolder         |
+| `internal/`          | Code you don't want imported by other modules (enforced by the compiler)       |
+| `pkg/`               | Code intended to be importable by others (controversial — many devs skip this) |
 
 **For small projects (like this repo): don't overthink it.** Files at the root, or organized by topic. We use numbered folders for learning order, not for production-style layout.
 

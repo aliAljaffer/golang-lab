@@ -4,7 +4,7 @@ Bounded parallelism over a stream of jobs. One of the highest-mileage patterns i
 
 ## The shape
 
-```
+```bash
 producer ──> jobs ────┐
                       ├──> [worker 1] ┐
                       ├──> [worker 2] ├──> results ──> consumer
@@ -24,9 +24,9 @@ producer ──> jobs ────┐
 
 ## The "who closes what" rule
 
-| Channel | Closed by |
-|---|---|
-| `jobs` | producer, after the last send |
+| Channel   | Closed by                                        |
+| --------- | ------------------------------------------------ |
+| `jobs`    | producer, after the last send                    |
 | `results` | a single goroutine that `wg.Wait()`s the workers |
 
 If you remember nothing else: **the sender closes**. The receiver never closes.
@@ -50,6 +50,6 @@ The mini-project (`fanout-ping`) uses this variant.
 
 ## Run
 
-```
+```bash
 go run .
 ```

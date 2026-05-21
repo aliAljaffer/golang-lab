@@ -5,7 +5,7 @@ compose them with `io.Pipe` / wrapping writers.
 
 ## The layering
 
-```
+```bash
 .tar.gz file
    └── gzip.Writer        (compresses bytes)
          └── tar.Writer   (frames bytes as tar entries)
@@ -14,7 +14,7 @@ compose them with `io.Pipe` / wrapping writers.
 
 Reading is the mirror image:
 
-```
+```bash
 .tar.gz file
    └── gzip.Reader
          └── tar.Reader

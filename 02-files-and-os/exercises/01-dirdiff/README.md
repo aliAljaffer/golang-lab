@@ -12,10 +12,10 @@ func Diff(left, right string) ([]Entry, error)
 
 Where `Entry.Kind` is one of:
 
-| Kind | Meaning |
-|---|---|
-| `OnlyLeft`  | File exists in `left` but not in `right` |
-| `OnlyRight` | File exists in `right` but not in `left` |
+| Kind        | Meaning                                           |
+| ----------- | ------------------------------------------------- |
+| `OnlyLeft`  | File exists in `left` but not in `right`          |
+| `OnlyRight` | File exists in `right` but not in `left`          |
 | `Modified`  | File exists in both, but contents (sha256) differ |
 
 Files that exist in both with identical sha256 are **not** in the result.
@@ -30,7 +30,7 @@ Files that exist in both with identical sha256 are **not** in the result.
 
 ## Run
 
-```
+```bash
 go test -tags=exercise ./02-files-and-os/exercises/01-dirdiff/...
 ```
 

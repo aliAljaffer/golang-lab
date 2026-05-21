@@ -32,7 +32,7 @@ Link: <https://api.github.com/.../issues?page=2>; rel="next",
 
 ## Run
 
-```
+```bash
 go test -tags=exercise ./03-http-clients/exercises/02-pagination/...
 ```
 

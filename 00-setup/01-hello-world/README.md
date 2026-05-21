@@ -9,17 +9,18 @@ go run ./00-setup/01-hello-world
 ```
 
 You should see:
-```
+
+```bash
 hello, devops
 ```
 
 ## What to notice
 
 - **`package main`** is special. Any other package name would compile as a library (`go build` produces nothing executable).
-- **Imports are explicit.** Unused imports are *compile errors*, not warnings. (Python/TS get away with unused imports; Go doesn't.)
+- **Imports are explicit.** Unused imports are _compile errors_, not warnings. (Python/TS get away with unused imports; Go doesn't.)
 - **`fmt.Println`** lives in the `fmt` package. The convention `package.Function` is everywhere — there's no `from fmt import Println`.
 - **No semicolons.** The Go parser inserts them based on line endings. Don't add them.
-- **The opening `{`** must be on the *same line* as the function declaration. This isn't a style preference; it's a parser rule. (Yes, this catches every Java developer once.)
+- **The opening `{`** must be on the _same line_ as the function declaration. This isn't a style preference; it's a parser rule. (Yes, this catches every Java developer once.)
 
 ## Try this
 

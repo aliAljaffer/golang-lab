@@ -38,13 +38,13 @@ io.Copy(f, resp.Body)
 
 ## Comparison
 
-| Concept | Go | Python | TS |
-|---|---|---|---|
-| Stream lines | `bufio.Scanner(resp.Body)` | `for line in resp.iter_lines():` | `resp.body.getReader()` |
-| Stream to file | `io.Copy(f, resp.Body)` | `shutil.copyfileobj(resp.raw, f)` | `Readable.from(resp.body).pipe(fs)` |
+| Concept        | Go                         | Python                            | TS                                  |
+| -------------- | -------------------------- | --------------------------------- | ----------------------------------- |
+| Stream lines   | `bufio.Scanner(resp.Body)` | `for line in resp.iter_lines():`  | `resp.body.getReader()`             |
+| Stream to file | `io.Copy(f, resp.Body)`    | `shutil.copyfileobj(resp.raw, f)` | `Readable.from(resp.body).pipe(fs)` |
 
 ## Run
 
-```
+```bash
 go run .
 ```

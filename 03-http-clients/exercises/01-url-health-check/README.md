@@ -12,13 +12,13 @@ func CheckAll(client *http.Client, urls []string) []Result
 
 Result fields:
 
-| Field | Meaning |
-|---|---|
-| `URL`      | The input URL |
+| Field      | Meaning                                                             |
+| ---------- | ------------------------------------------------------------------- |
+| `URL`      | The input URL                                                       |
 | `Status`   | HTTP status code; 0 if the request failed before getting a response |
-| `OK`       | `Status >= 200 && Status < 300` |
-| `Duration` | Wall-clock time elapsed for this request |
-| `Err`      | Transport error (DNS, refused, timeout); nil on any HTTP response |
+| `OK`       | `Status >= 200 && Status < 300`                                     |
+| `Duration` | Wall-clock time elapsed for this request                            |
+| `Err`      | Transport error (DNS, refused, timeout); nil on any HTTP response   |
 
 ## Behaviour
 
@@ -28,7 +28,7 @@ Result fields:
 
 ## Run
 
-```
+```bash
 go test -tags=exercise ./03-http-clients/exercises/01-url-health-check/...
 ```
 

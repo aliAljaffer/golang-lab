@@ -2,16 +2,16 @@
 
 Real tools layer config from multiple sources. `viper` standardizes the precedence so you don't reinvent it:
 
-```
-flag  >  env  >  config file  >  default
+```md
+flag > env > config file > default
 ```
 
 ## `os.Getenv` vs `os.LookupEnv`
 
-| | Returns | Distinguishes unset from empty? |
-|---|---|---|
-| `os.Getenv("X")` | `string` (empty if unset) | ❌ |
-| `os.LookupEnv("X")` | `(string, bool)` | ✅ |
+|                     | Returns                   | Distinguishes unset from empty? |
+| ------------------- | ------------------------- | ------------------------------- |
+| `os.Getenv("X")`    | `string` (empty if unset) | ❌                              |
+| `os.LookupEnv("X")` | `(string, bool)`          | ✅                              |
 
 Use `LookupEnv` when "unset" means something different from "empty string" (e.g. allowing explicit `FOO=""` to override a default).
 
@@ -23,7 +23,7 @@ Use `LookupEnv` when "unset" means something different from "empty string" (e.g.
 
 ## Try it
 
-```
+```bash
 go run .                              # default: info
 echo "log_level: debug" > config.yaml
 go run .                              # debug (from file)

@@ -17,7 +17,7 @@
 
 ## After implementing
 
-```
+```bash
 go run . --help
 go run . greet --help
 go run . greet --name Ali

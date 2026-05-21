@@ -26,7 +26,7 @@ labels: question, exercise-help
 
 ## What happened
 
-```
+```md
 paste error output, failing test output, or unexpected behavior
 ```
 

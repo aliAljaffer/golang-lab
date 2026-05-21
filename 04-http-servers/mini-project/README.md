@@ -4,7 +4,7 @@ A tiny CI runner. Receives signed webhooks, looks up a named job in a YAML confi
 
 ## Spec
 
-```
+```bash
 WEBHOOK_SECRET=swordfish webhook-runner -c webhooks.yaml --addr :8080
 ```
 
@@ -33,33 +33,33 @@ curl -i -X POST http://localhost:8080/webhook \
 Response:
 
 ```json
-{"job":"deploy","exit_code":0,"output":"..."}
+{ "job": "deploy", "exit_code": 0, "output": "..." }
 ```
 
 ## How it's split for testability
 
-| Function | Job |
-|---|---|
-| `LoadConfig(path)` | Parse the YAML, validate non-empty jobs + non-empty commands. |
-| `VerifyHMAC(secret, body, header)` | Constant-time check of `sha256=<hex>`. |
-| `runJob(ctx, job, maxOutput)` | `exec.CommandContext` + capture stdout/stderr + truncate + extract exit code. |
-| `newHandler(cfg, secret, maxOutput)` | Wire everything into `POST /webhook`. |
-| `newRootCmd()` | cobra wiring + signal-driven graceful shutdown. |
+| Function                             | Job                                                                           |
+| ------------------------------------ | ----------------------------------------------------------------------------- |
+| `LoadConfig(path)`                   | Parse the YAML, validate non-empty jobs + non-empty commands.                 |
+| `VerifyHMAC(secret, body, header)`   | Constant-time check of `sha256=<hex>`.                                        |
+| `runJob(ctx, job, maxOutput)`        | `exec.CommandContext` + capture stdout/stderr + truncate + extract exit code. |
+| `newHandler(cfg, secret, maxOutput)` | Wire everything into `POST /webhook`.                                         |
+| `newRootCmd()`                       | cobra wiring + signal-driven graceful shutdown.                               |
 
 Splitting `runJob` out of the handler is what makes the **graceful-shutdown-drains** test possible: the handler runs synchronously, so `srv.Shutdown(ctx)` blocks until the in-flight job returns. No background goroutines = no drain logic to write.
 
 ## Errors and status codes
 
-| Condition | Status |
-|---|---|
-| Missing / bad signature | `401` |
-| Unknown job name | `404` |
-| Job ran but exited non-zero | `200` with `exit_code != 0` (the *request* succeeded — the *job* failed) |
-| Couldn't even spawn the process | `500` |
+| Condition                       | Status                                                                   |
+| ------------------------------- | ------------------------------------------------------------------------ |
+| Missing / bad signature         | `401`                                                                    |
+| Unknown job name                | `404`                                                                    |
+| Job ran but exited non-zero     | `200` with `exit_code != 0` (the _request_ succeeded — the _job_ failed) |
+| Couldn't even spawn the process | `500`                                                                    |
 
 ## Run the tests
 
-```
+```bash
 go test -tags=exercise ./04-http-servers/mini-project/...
 ```
 

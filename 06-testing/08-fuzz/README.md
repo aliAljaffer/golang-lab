@@ -19,11 +19,11 @@ Built into Go's `testing` package since 1.18. Generates inputs, looks for crashe
 
 ## Why it took a fuzzer to catch this
 
-Most humans writing the table test would seed it with `"0"`, `"123"`, `"-42"`, `""`, `"abc"` — typical inputs. They wouldn't think to add `"-"` as an edge case. The fuzzer thinks of all the edge cases by *not thinking* — it just mutates and tries.
+Most humans writing the table test would seed it with `"0"`, `"123"`, `"-42"`, `""`, `"abc"` — typical inputs. They wouldn't think to add `"-"` as an edge case. The fuzzer thinks of all the edge cases by _not thinking_ — it just mutates and tries.
 
 ## Run
 
-```
+```bash
 # normal mode — seed corpus only
 go test ./06-testing/08-fuzz/...
 
@@ -35,7 +35,7 @@ After the fuzzer crashes, look in `testdata/fuzz/FuzzParseInt/`. The file is the
 
 ## Comparison
 
-| Concept | Go | Python | TS / Node | Java |
-|---|---|---|---|---|
-| Builtin fuzzer | yes (1.18+) | no — use `hypothesis` (property tests) or `atheris` | no — `fast-check` (property tests) | `jqf` / `JQF` |
-| Seed corpus | `f.Add(...)` | `@given(...)` strategies | `fc.assert(fc.property(...))` | regression test class |
+| Concept        | Go           | Python                                              | TS / Node                          | Java                  |
+| -------------- | ------------ | --------------------------------------------------- | ---------------------------------- | --------------------- |
+| Builtin fuzzer | yes (1.18+)  | no — use `hypothesis` (property tests) or `atheris` | no — `fast-check` (property tests) | `jqf` / `JQF`         |
+| Seed corpus    | `f.Add(...)` | `@given(...)` strategies                            | `fc.assert(fc.property(...))`      | regression test class |

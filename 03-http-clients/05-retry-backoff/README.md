@@ -22,13 +22,13 @@ For real production code, `github.com/cenkalti/backoff/v4` is the de-facto choic
 
 ## Comparison
 
-| Concept | Go | Python | TS |
-|---|---|---|---|
-| Retry library | `cenkalti/backoff` | `tenacity` | `axios-retry` |
-| Jitter | manual | `tenacity.wait_random_exponential` | manual |
+| Concept       | Go                 | Python                             | TS            |
+| ------------- | ------------------ | ---------------------------------- | ------------- |
+| Retry library | `cenkalti/backoff` | `tenacity`                         | `axios-retry` |
+| Jitter        | manual             | `tenacity.wait_random_exponential` | manual        |
 
 ## Run
 
-```
+```bash
 go run .
 ```

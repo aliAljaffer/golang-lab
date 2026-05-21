@@ -5,6 +5,7 @@ High-level roadmap and conventions. Each section folder has its own `PLAN.md` wi
 ## Goal
 
 Build a hands-on, DevOps-focused Go learning repo that:
+
 1. Doubles as personal notes and a shareable resource
 2. Opens as an Obsidian vault
 3. Organizes content by **DevOps problem domain** (CLI, HTTP, AWS, k8s) rather than by Go language feature
@@ -12,19 +13,19 @@ Build a hands-on, DevOps-focused Go learning repo that:
 
 ## Architectural decisions
 
-| Decision | Choice | Why |
-|---|---|---|
-| Module strategy | Single root `go.mod` | Simpler than multi-module workspaces; one `go test ./...` runs everything |
-| Exercise solutions | Test-driven, no solutions in repo | Forces hands-on practice; tests give objective "done" signal |
-| Per-section structure | Notes + PLAN + examples + mini-project + exercises | Consistent navigation; section PLAN keeps token cost low when loading into Claude sessions |
-| CI | GitHub Actions, `go vet` + `go test` on push | Keeps repo buildable as it grows; free for public repos |
-| Obsidian compat | `.obsidian/` ignored; markdown links over wikilinks | Personal vault settings don't leak; links work on both Obsidian and GitHub |
+| Decision              | Choice                                              | Why                                                                                        |
+| --------------------- | --------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| Module strategy       | Single root `go.mod`                                | Simpler than multi-module workspaces; one `go test ./...` runs everything                  |
+| Exercise solutions    | Test-driven, no solutions in repo                   | Forces hands-on practice; tests give objective "done" signal                               |
+| Per-section structure | Notes + PLAN + examples + mini-project + exercises  | Consistent navigation; section PLAN keeps token cost low when loading into Claude sessions |
+| CI                    | GitHub Actions, `go vet` + `go test` on push        | Keeps repo buildable as it grows; free for public repos                                    |
+| Obsidian compat       | `.obsidian/` ignored; markdown links over wikilinks | Personal vault settings don't leak; links work on both Obsidian and GitHub                 |
 
 ## Per-section template
 
 Every `NN-topic/` folder:
 
-```
+```bash
 NN-topic/
 ├── README.md           # Notes (polished, public-facing teaching content)
 ├── PLAN.md             # Working roadmap for this section
@@ -69,7 +70,7 @@ Every section's `PLAN.md` is brief and tactical:
 
 ## Build sequence
 
-1. ☑ Root foundation (go.mod, .gitignore, Makefile, LICENSE, CONTRIBUTING.md, _assets/, SESSIONS.md, README.md, PLAN.md)
+1. ☑ Root foundation (go.mod, .gitignore, Makefile, LICENSE, CONTRIBUTING.md, \_assets/, SESSIONS.md, README.md, PLAN.md)
 2. ☑ Bootcamp scaffolding (BOOTCAMP.md, issue templates)
 3. ☑ Section skeletons (12 folders × stub PLAN/README/exercises/mini-project)
 4. ☑ Flesh out `00-setup/` fully — validates the template end-to-end

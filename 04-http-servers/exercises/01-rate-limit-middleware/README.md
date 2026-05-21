@@ -17,7 +17,7 @@ Look at `TestAllow_ResetsAfterWindow` — the test moves a fake clock forward by
 
 ## Run the tests
 
-```
+```bash
 go test -tags=exercise ./04-http-servers/exercises/01-rate-limit-middleware/...
 ```
 
