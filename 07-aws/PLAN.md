@@ -48,9 +48,9 @@ Tests verify:
 ## Status
 
 - [ ] Concepts in README walkthrough
-- [ ] Examples 01-07 built
-- [ ] Mini-project `s3sync` built + tested
-- [ ] Exercises scaffolded
+- [x] Examples 01-07 built
+- [x] Mini-project `s3sync` built + tested
+- [x] Exercises scaffolded
 
 ## Session Log
 

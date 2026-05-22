@@ -44,9 +44,9 @@ Tests verify:
 ## Status
 
 - [ ] Concepts in README walkthrough
-- [ ] Examples 01-06 built
-- [ ] Mini-project `crashloop-alert` built + tested
-- [ ] Exercises scaffolded
+- [x] Examples 01-06 built
+- [x] Mini-project `crashloop-alert` built + tested
+- [x] Exercises scaffolded
 
 ## Session Log
 

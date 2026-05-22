@@ -42,9 +42,9 @@ Tests verify:
 ## Status
 
 - [ ] Concepts in README walkthrough
-- [ ] Examples 01-06 built
-- [ ] Mini-project `image-pruner` built + tested
-- [ ] Exercises scaffolded
+- [x] Examples 01-06 built
+- [x] Mini-project `image-pruner` built + tested
+- [x] Exercises scaffolded
 
 ## Session Log
 

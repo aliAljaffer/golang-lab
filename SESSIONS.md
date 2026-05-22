@@ -19,6 +19,292 @@ A running log of what each Claude Code session accomplished. Newest entries on t
 
 ---
 
+## 2026-05-22 — README walkthroughs fleshed out for sections 01-11
+
+**Goal:** Per the prior session's closing note, the bootcamp is structurally complete but the per-section README walkthroughs across sections 01-11 were stubs (23-31 lines each, just headers + "see PLAN.md"). User selected "Write README walkthroughs across all sections" as the next step. The reference was `00-setup/README.md` (already fleshed out at ~229 lines).
+
+**Done:**
+
+- Wrote full walkthroughs for all 11 sections (01-cli-tools through 11-iac-tooling) matching the `00-setup/README.md` shape: hook paragraph, "What you'll learn" bullets, "Mental model from other languages" table (expanded vs the original stubs — added rows for the concepts that are actually load-bearing in each section), "The DevOps angle" with non-obvious production details rather than just the pitch, numbered Walkthrough section with one paragraph per example (linking to each subfolder), Mini-project paragraph with the pinned-contract one-liners pulled from prior SESSIONS notes, Exercises section with brief WHY-this-exercise-exists rather than just the title, Further reading section with stable canonical links (stdlib godocs, language-team posts, official tutorials).
+- The walkthroughs pull the load-bearing-detail content from the prior SESSIONS.md entries (07-aws, 08-kubernetes, 09-docker, 10-observability, 11-iac-tooling all had rich notes already). For sections 01-06 (which were scaffolded in earlier sessions without comparable detail in SESSIONS.md), drew on the PLAN.md tables + each section's existing stub + general DevOps-Go knowledge — sticking to widely-accepted patterns, no fabricated APIs.
+- Each README links to: the section's own subfolders (examples + mini-project + exercises) by relative path, the relevant stdlib godoc, and 1-2 canonical external sources (Cloudflare timeouts post, AWS jitter post, k8s sample-controller, OTel semantic conventions, HashiCorp framework docs, etc.).
+- Cross-references between sections where they earn it: section 10's mini-project is documented as building on section 04's `webhook-runner`; section 08's mini-project Deduper is documented as reusing the `Now func() time.Time` pattern from `06-testing/02-fake-clock`; section 07's "interface-at-consumption-site" doctrine is referenced from sections 08/09/10 mini-projects' fakes.
+- 11-iac-tooling's README explicitly documents the Pulumi-skipped decision and notes exercise 02 was skipped for the same reason (so future-me reading the README doesn't try to find an exercise that doesn't exist).
+- 00-setup intentionally left untouched (already complete).
+- No PLAN.md status boxes were updated as part of this session — the user can tick `[ ] Concepts documented in README walkthrough` → `[x]` themselves if they want (deferred since the spec wording varies slightly across PLANs and I didn't want to silently rewrite them).
+
+**Files touched:** 11 files — `{01-cli-tools,02-files-and-os,03-http-clients,04-http-servers,05-concurrency,06-testing,07-aws,08-kubernetes,09-docker,10-observability,11-iac-tooling}/README.md`. No code changes, no go.mod / go.sum / CI changes.
+
+**Open / next:**
+
+- User decides whether to tick the "Concepts documented in README walkthrough" status boxes in each PLAN.md (left untouched in this session)
+- User to actually work through the TODOs / exercises / mini-projects across the suite (the multi-month phase the bootcamp was designed for)
+- If/when sections grow (e.g., a new example is added), the relevant README's Walkthrough section needs the new item appended — the structure is now in place for that to be a one-line edit
+- If the user disagrees with framing in any section's README (the "What you'll learn" angle, the cross-references, the further reading picks), point it out and I'll adjust; the shape is consistent across all 11 so a single style decision propagates
+
+**Notes:**
+
+- **Style decisions pinned across all 11 READMEs** (for future consistency):
+  - Status header uses ☑ (boxed-check) for "scaffolded and walkthrough done" — same glyph the existing stubs used
+  - "What you'll learn" is a bullet list, not numbered (numbering is reserved for the walkthrough order which is genuinely sequential)
+  - "Mental model from other languages" tables consistently list Go first, then Python, then TS/Node, then (when relevant) Bash and Java. Order matches `00-setup`.
+  - "The DevOps angle" sections lead with the production-grade non-obvious details, not the "Go has a single static binary!" pitch (that's beaten to death in `00-setup` already)
+  - Walkthrough numbered list links to each subfolder with a one-paragraph teaser pulling out the load-bearing concept; the example's own README is where the full explanation lives
+  - Mini-project section is short — a hook paragraph + a "tests pin: ..." sentence pulling the contract-bearing tests out, then "spec in mini-project/"
+  - Exercises section is one bullet per exercise with a brief WHY (the pattern it teaches), not a restatement of the spec
+  - Further reading is 4-5 stable canonical links per section; avoid blog posts that might rot
+- **Section 10's "trace_id in logs requires the span to be sampled" callout** is the kind of detail that would be hard to learn outside this README — preserved verbatim from the prior session notes because it's load-bearing for anyone actually wiring this up
+- **Section 04's `/healthz` vs `/readyz` framing** ("If your DB is down, the k8s liveness probe restarts your pod, then your replacement also can't reach the DB...") is the cascade-fail story; it's the WHY the K8s docs gloss over and the WHY that justifies the deliberate split in example 05
+- **Section 11 README is the longest** (intentionally — it covers the most novel material; the framework's typed-value model has no analog in any other ecosystem)
+- The TodoList shows 12/12 tasks complete (the 11 sections + the SESSIONS.md update). Total ~30k tokens of new content across the 11 READMEs.
+
+---
+
+## 2026-05-22 — `11-iac-tooling/` scaffolded (Terraform-only; Pulumi skipped per user)
+
+**Goal:** Flesh out `11-iac-tooling/` following the `10-observability/` pattern: examples with TODOs, mini-project + tests, exercises with failing tests. Spec is in `11-iac-tooling/PLAN.md`. User instruction mid-session: skip all Pulumi content (originally PLAN had `03-pulumi-hello/` + exercise `02-pulumi-loop`).
+
+**Done:**
+
+- 2 example folders, each with TODO-style `main.go` + concept README:
+  - `01-tf-provider-skeleton` (the minimum-viable provider against `terraform-plugin-framework` v1.19.0: `provider.Provider` interface = Metadata/Schema/Configure/Resources/DataSources; `resource.Resource` interface = Metadata/Schema/Create/Read/Update/Delete; `providerserver.Serve` is the entry point that speaks gRPC over stdin/stdout to the `terraform` CLI; the model uses `tfsdk:"..."` reflection tags + `types.String` ternary value type for null/unknown/value semantics; Read/Update/Delete are stubs because the `echo_value` resource has no remote state — Create just copies input → output)
+  - `02-tf-provider-crud` (full CRUD on the same `echo_value` resource; introduces validators via `terraform-plugin-framework-validators` `stringvalidator.LengthAtLeast(1)` + plan modifiers via `stringplanmodifier.RequiresReplace()` and `UseStateForUnknown()`; computed `length` attribute the provider derives; stable sha1-prefix `id`; the canonical refresh pattern in Read = state→model→remote-API→state; the three-values doctrine (Config/Plan/State, when each is the source of truth); local-install + `terraform apply` walkthrough in README)
+- Mini-project `tf-provider-fileops`: a `fileops_templated_file` resource that renders Go `text/template` + vars and writes the result to a local path. Scaffold split into `main.go` (provider + resource + model + CRUD TODO stubs) + `helpers.go` (4 pure I/O helpers — `RenderTemplate` / `WriteTemplatedFile` / `ReadTemplatedFile` / `DeleteTemplatedFile`) + `main_test.go`. 10 tests total: 3 for `RenderTemplate` (happy path, `missingkey=error` is the pinned production stance vs default `<no value>` substitution, invalid syntax errors), 2 for `WriteTemplatedFile` (creates + overwrites), 2 for `ReadTemplatedFile` (happy + `errors.Is(err, os.ErrNotExist)` survives — the regression-catcher for drift detection), 2 for `DeleteTemplatedFile` (removes + idempotent-on-missing — terraform destroy must be re-runnable), 1 provider-smoke (`TestProviderSchemaCompiles` reads `p.Resources(ctx)` len), 1 acceptance-test stub `TestAccTemplatedFile_SkipsWithoutTF_ACC` (skips without `TF_ACC=1`; full `terraform-plugin-testing` wiring documented in README as extension exercise).
+- 2 exercises with failing tests under `//go:build exercise` (exercise `02-pulumi-loop` skipped per user):
+  - `01-tf-data-source` (`fileinfods` package): implement a read-only data source `fileops_file_info` (`path` Required, `exists` Computed bool, `size` Computed int64). 5 tests: 3 for `ReadFileInfo` pure helper (existing file → Size+Exists, missing file → `Exists=false, NOT error` — pinned contract since data sources are lenses not guards, empty-file is a valid file), 1 for Metadata TypeName (`<provider>_file_info`), 1 for Schema completeness (all 3 attributes present).
+  - `03-provider-error-handling` (`provdiag` package): `WriteFileDiagnostics(path, err) diag.Diagnostics` that translates raw `os` errors into actionable user-facing diagnostics. 5 tests: nil-err → empty diags, `os.ErrPermission` → mentions chmod/chown/privileges + path, `os.ErrNotExist` → mentions create-dir/mkdir, generic err → includes underlying error string + path, all-severities-are-`SeverityError` (no warnings — anything that prevented a write IS an error).
+- All exercise/mini-project tests carry `//go:build exercise`; default `go test ./...` stays green (all 5 `11-iac-tooling` runtime packages show `[no test files]`).
+- Verified: `go build ./...`, `go vet ./...`, `go vet -tags=exercise ./...`, `go test ./...` all clean. `go test -tags=exercise ./11-iac-tooling/...` shows expected failures: mini-project (7 explicit + 4 coincidence-passes — `TestRenderTemplate_MissingVarIsError` and `TestRenderTemplate_InvalidSyntax` pass because the stub returns an error which IS the expected behaviour for those failing cases; `TestProviderSchemaCompiles` passes because the resource factory IS correctly registered in the stub; `TestAccTemplatedFile_SkipsWithoutTF_ACC` skips cleanly), exercise 01 (5 — `Schema_HasThreeAttributes` reports 3 missing attrs in one failure), exercise 03 (3 explicit + 2 coincidence-passes — nil-err vacuously satisfies, all-severities-are-error vacuously satisfies because empty diag slice has no severities to check). No panics, no hangs.
+- `11-iac-tooling/PLAN.md` Status flipped (Examples/Mini-project/Exercises ticked; README walkthrough still ☐); `11-iac-tooling/README.md` status header updated. PLAN's Pulumi section replaced with an explicit "skipped per user" note.
+- **No Go version bump.** terraform-plugin-framework v1.19.0 + v0.19.0 validators are compatible with go 1.26.0.
+
+**Files touched:** ~15 new files under `11-iac-tooling/` (examples + mini-project + 2 exercises). `go.mod`, `go.sum` updated. New deps: `github.com/hashicorp/terraform-plugin-framework` v1.19.0, `github.com/hashicorp/terraform-plugin-framework-validators` v0.19.0, plus ~15 transitive (`terraform-plugin-go` for tfprotov6/tfprotov5/tftypes, `terraform-plugin-log` for tflog/tfsdklog, `terraform-registry-address`, `terraform-svchost`, `go-uuid`, `yamux`, `oklog/run`, `protocompile`, `jhump/protoreflect`, `fatih/color`, `mattn/go-isatty`, `go-colorable`, `vmihailenco/tagparser/v2`).
+
+**Open / next:**
+
+- User to work through examples 01-02 (each TODO-block in `main.go`); example 02 is the bigger one (CRUD + validators + plan modifiers)
+- Implement `tf-provider-fileops` until `go test -tags=exercise ./11-iac-tooling/mini-project/...` is green
+- Implement the 2 exercises in any order
+- Walkthrough doc in `11-iac-tooling/README.md` (currently stub + comparison table)
+- For acceptance tests against a real `terraform` binary, install Terraform locally and run `TF_ACC=1 go test -tags=exercise -run TestAcc ./11-iac-tooling/mini-project/...` after wiring `terraform-plugin-testing` per the mini-project README extension section
+- All examples + mini-project compile without `terraform` installed. `terraform apply` against a built provider binary requires the binary be moved to `~/.terraform.d/plugins/registry.terraform.io/examples/<name>/<version>/<os>_<arch>/` — documented in each example's README
+- **The bootcamp is now structurally complete.** All 11 sections (00-setup through 11-iac-tooling) have examples + mini-project + exercises scaffolded. The remaining work is per-section README walkthroughs (currently stubs + comparison tables in most sections) and the user actually implementing the TODOs/exercises across the suite.
+
+**Notes:**
+
+- **`terraform-plugin-framework` v1 vs `terraform-plugin-sdk/v2`:** the framework is the modern API HashiCorp directs new providers to use — it has cleaner ergonomics (typed `types.String`/`types.Int64`/etc with proper null/unknown semantics, separate Schema vs Plan vs State accessors, structured diagnostics with Summary+Detail). The legacy `sdk/v2` ("Schema SDK") is still around for existing providers but new code should default to framework. Documented in 01's README.
+- **The `tfsdk:"..."` reflection tag** is the framework's bridge between Go structs and Terraform values. The framework uses runtime reflection to marshal between `types.String`/`types.Bool`/etc and your struct fields. This is why `Path types.String` rather than `Path string` — Terraform values have a ternary state (value/null/unknown), and a plain `string` can't represent "unknown" (known-after-apply).
+- **`providerserver.Serve` does the gRPC dance.** When `terraform apply` runs, the CLI exec()s the provider binary, then connects to its stdin/stdout over the HashiCorp go-plugin protocol. The `Address` field declares where the provider would live in the registry — locally you install at `~/.terraform.d/plugins/<address>/<version>/<os>_<arch>/`. Both examples + the mini-project's README spell out the install path.
+- **Validators run during `terraform plan`,** before Create/Update. The user sees a useful error message at plan time instead of the Create call panicking against a bad value. Example 02 demonstrates `stringvalidator.LengthAtLeast(1)` on `input`. Validators are pure-validation; for cross-attribute or stateful checks, use the provider's `Validators` schema slot or `Resource.ValidateConfig` hook.
+- **Plan modifiers run AFTER validators but BEFORE the CRUD handler.** They shape what the diff *looks like* to the user. `RequiresReplace()` turns an in-place Update into a Destroy+Create (what AWS calls "RECREATE_AUTO" in CloudFormation). `UseStateForUnknown()` prevents the "(known after apply)" placeholder in plan output when an attribute is computed but stable across applies — without it, every plan shows `id` as unknown, which clutters output.
+- **Mini-project pinned production stance: `Option("missingkey=error")`.** Default Go `text/template` silently substitutes `<no value>` for a missing variable. That's fine for log messages, but an IaC tool that writes the result to a file Terraform tracks forever should fail loudly on typo'd vars — `listen: ":<no value>"` shipping to `/etc/myapp/config.yaml` would be a real bug. Documented in `helpers.go` and the mini-project README.
+- **`errors.Is(err, os.ErrNotExist)` survives `os.ReadFile`'s wrapping** — the test `TestReadTemplatedFile_NotFoundReturnsErrNotExist` exists specifically to regression-catch a future refactor that swaps `os.ReadFile` for a custom helper that loses the sentinel. The resource's `Read` handler depends on the sentinel to call `resp.State.RemoveResource(ctx)` for drift detection; if the sentinel disappears, drift detection silently breaks.
+- **`DeleteTemplatedFile` is idempotent** — terraform destroy is re-runnable. If a previous destroy was interrupted, or the file was manually removed, the second destroy must succeed. This is the universal pattern in Terraform providers; AWS providers do the same (DELETE on a 404 resource returns success).
+- **Acceptance tests gated on `TF_ACC=1`** is the HashiCorp convention. The pattern: `if os.Getenv("TF_ACC") == "" { t.Skip(...) }` at the top of every `TestAcc*` function. The mini-project ships a stub of this shape (no real terraform-plugin-testing wiring) because (a) it adds a heavy dep, (b) the user might not have `terraform` installed yet, (c) the pure helpers exercise the interesting logic anyway. Extension section in the README shows the full wiring.
+- **Data sources are read-only siblings of resources** — same Schema, only `Read` (no Create/Update/Delete). Exercise 01's `fileops_file_info` data source demonstrates the convention. Crucially: a missing file should set `Exists=false`, NOT return an error. Data sources are lenses on real-world state, not guards — the user composes them into `count = data.x.exists ? 1 : 0` patterns. Pinned in `TestReadFileInfo_MissingFileIsNotAnError`.
+- **Actionable diagnostics matter more than detailed ones.** Exercise 03 pins the contract: `Summary` should be a short noun phrase ("permission denied"), `Detail` should include the path AND a remediation hint (chmod / mkdir / "run with sufficient privileges"). All three error types in the exercise must produce `SeverityError`, never `Warning` — warnings would let a user merrily apply and then wonder why nothing happened. Documented in the exercise README.
+- **The bootcamp is structurally complete** — 11 sections × (examples + mini-project + exercises) all scaffolded. The next phase is README walkthroughs across sections (most are currently stub + comparison table) and the user actually completing the implementations. SESSIONS.md should keep getting entries as the user works through them, but the "scaffold the next section" loop has reached its natural end.
+
+---
+
+## 2026-05-22 — `10-observability/` scaffolded
+
+**Goal:** Flesh out `10-observability/` following the `09-docker/` pattern: examples with TODOs, mini-project + tests, exercises with failing tests. Spec is in `10-observability/PLAN.md`.
+
+**Done:**
+
+- 6 example folders, each with TODO-style `main.go` + concept README:
+  - `01-slog-basics` (`slog.NewTextHandler` / `slog.NewJSONHandler`, levels-live-on-the-handler, `slog.Group`, `AddSource: true`, "why slog killed zap/logrus for new code")
+  - `02-slog-context` (the `WithLogger`/`FromContext` pattern via an unexported typed `ctxKey struct{}`; `FromContext` falls back to `slog.Default()` so callers never nil-check; `logger.With(...)` is a builder, not mutation)
+  - `03-prom-counter` (`promauto.NewCounterVec` + `promhttp.Handler()` + the canonical RED `http_requests_total{method,path,status}`; the cardinality-trap README section is the headline — never label by user_id/raw URL)
+  - `04-prom-histogram` (`HistogramVec` + `ExponentialBuckets(0.001, 2, 14)` + the `time.Since(start).Seconds()` + `defer Observe(...)` pattern + Prometheus convention "seconds, not millis"; README contrasts Histogram vs Summary — "use Histogram, period")
+  - `05-otel-tracing` (the three things — exporter / TracerProvider / Tracer; `tracer.Start(ctx, name)` returns BOTH a new ctx AND the span — and you MUST use the returned ctx for children; `stdouttrace.WithPrettyPrint()` for terminal-visible spans; `tp.Shutdown` is not optional — without it the batcher drops the final batch)
+  - `06-trace-http` (`otelhttp.NewHandler` server-side + `otelhttp.NewTransport` client-side + `propagation.NewCompositeTextMapPropagator(TraceContext{}, Baggage{})`; the W3C `traceparent` header anatomy; the "global propagator default is no-op" gotcha that breaks 100% of first-time setups)
+- Mini-project `webhook-runner-instrumented`: rebuilds 04-http-servers' webhook-runner with full observability surface. `Metrics` struct holds `Requests` (CounterVec method/path/status) + `Duration` (HistogramVec method/path) + `InFlight` (Gauge) + `Jobs` (CounterVec job/result with ok|fail|unknown enum), plus the registry itself so tests can spin up independent servers without `DefaultRegisterer` collisions. `observability(opts)` middleware does the cross-cutting work — generates `request_id` (atomic counter, deterministic for tests), starts the server span, builds a `*slog.Logger` pre-bound with `request_id` AND `trace_id` (the latter pulled from `span.SpanContext().TraceID()`), stashes it on ctx via unexported `ctxKey{}`, increments `InFlight` with defer-Dec, captures status via a `statusRecorder` wrapper, observes duration on End. `VerifyHMAC` and `RunJob` get their own spans (so a trace shows verify→run as a chain). The outer mux serves `/metrics` outside the observability wrap (no point counting scrapes). `main_test.go` has 12 tests + helpers: `TestVerifyHMAC_*` (3), `TestRunJob_*` (3 — success/non-zero-exit/output-truncation, all driven by real `sh -c` subprocesses), `TestServer_HappyPath` (asserts both `http_requests_total{status=200}` AND `webhook_jobs_total{result=ok}`), `TestServer_BadSignatureReturns401AndCounts`, `TestServer_UnknownJobReturns404AndCountsUnknown`, `TestServer_FailingJobCountsFail` (exit≠0 is still HTTP 200 — the test pins this contract: "process failed" is not "transport failed"), `TestServer_MetricsEndpointExposesSeries` (4 series names), `TestServer_RequestLogIncludesRequestID` (asserts `"request_id"` AND `"trace_id"` AND both `request.start`/`request.end` events appear in the bytes.Buffer-backed JSONHandler), `TestServer_SpansCreated` (3 expected spans via `tracetest.NewInMemoryExporter` + `sdktrace.WithSyncer(exp)`), `TestServer_InFlightReturnsToZero` (deferred Dec invariant).
+- 3 exercises with failing tests under `//go:build exercise`:
+  - `01-log-context-key` (`reqlog` package): `WithRequestID`/`RequestIDFromContext` + `WithLogger`/`LoggerFromContext` + `Middleware(base, idGen)`. 5 tests: round-trip, missing-returns-empty, honours-incoming-`X-Request-ID`-header (does-not-regenerate-over-it AND echoes it back on the response), generates-via-injected-idGen-when-absent, ctx-bound-logger-has-`request_id`-pre-bound. `idGen` is injected just like the clock in `06-testing/02-fake-clock` — tests pass a constant `"GENERATED"` generator; production uses `uuid.New().String`.
+  - `02-rate-limited-logging` (`ratelog` package): `Limiter` with injectable `Now func() time.Time` + per-key `lastSeen map[string]time.Time` (mutex-guarded). 5 tests using a fake clock: first-call-allowed, second-within-window-blocked, after-window-allowed-again, per-key-isolation, rate-limited-key-stays-blocked-while-other-keys-free. README mentions the natural follow-up (wrap as a `slog.Handler`) but the exercise itself just pins `Allow()` semantics.
+  - `03-trace-sql-call` (`dbspan` package): `Query(ctx, tracer, db, sql)` that wraps a DB call with a span named `db.query`, sets `db.statement` attribute, `db.rows_affected` on success, AND `span.RecordError(err) + span.SetStatus(codes.Error, ...)` on failure. 5 tests: span-named, statement-attribute-set, rows_affected-on-success, error-recorded-AND-status-set (asserts both — production needs both: RecordError adds the event for dashboards, SetStatus(Error) paints the span red and bubbles up to trace-error-rate alerts), returns-underlying-result. Tests use `tracetest.NewInMemoryExporter` + `sdktrace.WithSyncer(exp)` for deterministic span inspection.
+- All exercise/mini-project tests carry `//go:build exercise`; default `go test ./...` stays green (all 10-observability runtime packages show `[no test files]`).
+- Verified: `go build ./...`, `go vet ./...`, `go vet -tags=exercise ./...`, `go test ./...` all clean. `go test -tags=exercise ./10-observability/...` shows expected failures: mini-project (9 explicit + 3 coincidence-passes — `TestVerifyHMAC_BadSignature` / `TestVerifyHMAC_MissingPrefix` pass because the stub returns false which IS correct for bad sigs; `TestServer_BadSignatureReturns401AndCounts` passes for the same reason; `TestServer_InFlightReturnsToZero` passes because the defer-Dec runs regardless), exercise 01 (4 — `TestRequestIDFromContext_MissingReturnsEmpty` coincidence-passes because the stub returns ""), exercise 02 (4 — `TestAllow_SecondCallWithinWindowIsBlocked` coincidence-passes because the stub always returns false), exercise 03 (5). No panics, no hangs.
+- `10-observability/PLAN.md` Status flipped (Examples/Mini-project/Exercises ticked; README walkthrough still ☐); `10-observability/README.md` status header updated.
+- **No CI bump.** Go 1.26.0 from last session still holds. All new deps are compatible with that toolchain.
+
+**Files touched:** ~25 new files under `10-observability/` (examples + mini-project + exercises). `go.mod`, `go.sum` updated. New deps: `github.com/prometheus/client_golang` v1.23.2 (+ `client_model`, `common`, `procfs`, `klauspost/compress` transitively), `go.opentelemetry.io/otel/exporters/stdout/stdouttrace` v1.43.0. The other OTel packages (`otel`, `otel/sdk`, `otel/trace/noop`, `otelhttp`, `propagation`) were already pulled in transitively by `k8s.io/client-go` last session — they just got promoted from indirect to direct.
+
+**Open / next:**
+
+- User to work through examples 01→06 (each TODO-block in `main.go`)
+- Implement `webhook-runner-instrumented` until `go test -tags=exercise ./10-observability/mini-project/...` is green
+- Implement the 3 exercises in any order
+- Walkthrough doc in `10-observability/README.md` (currently stub + comparison table)
+- Examples 03/04 (`prom-counter`, `prom-histogram`) and 06 (`trace-http`) bind to `:8080` and serve real HTTP — `curl localhost:8080/metrics` and `curl localhost:8080/parent` are the canonical interactions; nothing needs to be installed (no Prometheus server, no Jaeger). Example 05 (`otel-tracing`) writes span JSON straight to stdout — same "no infra" property.
+- Next scaffolding step (future session): `11-iac-tooling/` (the last section)
+
+**Notes:**
+
+- **Why a custom registry on the `Metrics` struct, not `promauto`+default registry:** the test suite builds multiple `newServer` instances. With `promauto`, the second `MustRegister` panics ("duplicate metrics collector registration"). Holding `reg *prometheus.Registry` inside `Metrics` and serving it via `promhttp.HandlerFor(m.registry(), ...)` is the cleanest fix — production also benefits when reloads spin up a fresh registry. Same pattern as k8s informer factories: every test gets its own world.
+- **`trace_id` in log lines only works if the span is sampled.** The test TracerProvider uses `sdktrace.NewTracerProvider(sdktrace.WithSyncer(exp))` which samples everything by default — so every test request's logs have `trace_id`. In production with `ParentBased(TraceIDRatioBased(0.01))`, only ~1% of requests' log lines carry `trace_id`. The middleware code path is the same either way: `if sc := span.SpanContext(); sc.HasTraceID()`.
+- **`request_id` as an atomic counter** is deliberately the simplest thing — keeps tests deterministic ("first request gets id=1"). Production should use `uuid.New().String()` or `ulid.Make().String()` (smaller, time-sortable). Documented in mini-project README.
+- **The "exit code ≠ 0 returns HTTP 200" contract** in `TestServer_FailingJobCountsFail` is a real design call: a process failure is application-level (the runner did its job — it ran the command and reported the result), not transport-level. HTTP 5xx should only fire when the server itself misbehaves (spawn failed, ctx died, etc.). This split matches `kubectl get pods` exit codes and GitHub Actions exit semantics. The `result=fail` counter is how alerts catch the "all jobs are failing" condition.
+- **`/metrics` is served OUTSIDE the observability middleware** — wrapping it would mean every Prometheus scrape inflates `http_requests_total` and skews the duration histogram. The outer mux pattern (instrument `/`, plain-serve `/metrics`) is the canonical fix; alternatives include adding a `path != "/metrics"` early-return inside the middleware (cheaper but less explicit).
+- **OTel span attribute name choices matter** — exercise 03's README explicitly pins `db.statement`, `db.rows_affected` etc. as the OpenTelemetry semantic conventions. Backends (Jaeger, Tempo, Honeycomb, Datadog) ship dashboards that auto-recognize these. If you invent your own names, you re-implement the dashboard.
+- **`span.RecordError(err) + span.SetStatus(codes.Error, ...)` together** is the pinned contract in exercise 03. RecordError adds an event; SetStatus paints the span red. Doing only one means dashboards see either "a successful span with a stray exception event" (no SetStatus) or "an errored span with no error detail" (no RecordError). Production code must do both.
+- **`tracetest.NewInMemoryExporter` + `sdktrace.WithSyncer(exp)`** is the gateway drug for OTel testing. WithSyncer (not WithBatcher) means spans are exported synchronously — no race between `span.End()` and `exp.GetSpans()`. Use this in tests; never in production (synchronous export blocks the request hot path).
+- **The `otelhttp` middleware is the only piece of OTel auto-instrumentation we touch** in this section. Other auto-instrumenters (`otelsql`, `otelgrpc`, etc.) follow the same shape — wrap your transport / handler / dialer; they handle span creation + propagation invisibly. Documented in 06-trace-http README.
+- **Stdout tracer for examples (`stdouttrace`)** lets the user see span output with zero infra. Production swaps to `otlptracegrpc.New` or `otlptracehttp.New` pointing at a collector. The TracerProvider construction is otherwise identical — only the exporter changes. README 05 calls this out.
+- **No prom-summary example.** Summaries are legacy; the consensus in the Prometheus community is "always Histogram, never Summary" for new code (summaries don't aggregate across replicas). PLAN.md mentions Summary in the "concepts" list but the examples deliberately skip it. README 04 spells out why.
+
+---
+
+## 2026-05-22 — `09-docker/` scaffolded
+
+**Goal:** Flesh out `09-docker/` following the `08-kubernetes/` pattern: examples with TODOs, mini-project + tests, exercises with failing tests. Spec is in `09-docker/PLAN.md`.
+
+**Done:**
+
+- 6 example folders, each with TODO-style `main.go` + concept README:
+  - `01-connect` (`client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())` + `cli.ServerVersion(ctx)` smoke probe — explains why API negotiation is non-optional)
+  - `02-list-containers` (`cli.ContainerList(ctx, container.ListOptions{All: ...})` + the `Names` `/`-prefix gotcha + `filters.NewArgs(filters.Arg("status", "running"))` DSL)
+  - `03-pull-and-run` (the 6-step run sequence: `ImagePull` → drain reader → `ContainerCreate` → `ContainerStart` → `ContainerWait` (two-channel pattern) → `stdcopy.StdCopy` → `ContainerRemove`; the "you MUST drain the pull reader" footgun is the headline)
+  - `04-logs-stream` (`ContainerLogs(..., {Follow: true})` + the multiplex frame format `[stream code 1B][len 4B][payload]` + the TTY exception that breaks `StdCopy`)
+  - `05-exec` (`ContainerExecCreate` → `ContainerExecAttach` (this is what starts it) → `StdCopy` → `ContainerExecInspect` for exit code; the two-phase API + "exit code lives in a separate Inspect call" are the load-bearing concepts)
+  - `06-events` (`cli.Events(ctx, events.ListOptions{Filters: f})` two-channel return + the per-event `Type`/`Action`/`Actor` shape + filter-at-source rationale)
+- Mini-project `image-pruner`: policy-driven image cleanup. Three policies OR'd (`--untagged`, `--max-age`, `--no-containers`) + `--dry-run` + `--force`. Scaffold split into `Policy` struct, `DockerAPI` interface (3 methods: `ImageList`/`ImageRemove`/`ContainerList`), `Plan(images, containers, policy, now)` (pure), `isUntagged(image.Summary)` helper, `Sync(ctx, api, policy, now, out)` (does the work). `main_test.go` has 14 tests + a `captureRemoveFake` wrapper covering: `isUntagged` (nil tags / `<none>:<none>` placeholder / real tag), `Plan` rules (untagged, max-age, container-ref protection, OR-not-AND, empty policy = no-op, deterministic sort), `Sync` (happy path, dry-run-makes-no-remove-calls, list-error-propagates, remove-error-propagates, force-flag-threads-through-to-RemoveOptions). Uses `atomic.Int32` for remove-call counting + a `captureRemoveFake` to assert the force flag actually reaches `RemoveOptions.Force` (regression catcher).
+- 3 exercises with failing tests under `//go:build exercise`:
+  - `01-container-stats` (`stats` package): `CPUPercent(curr, prev Snapshot) float64` + `MemoryPercent(s Snapshot) float64`. 6 tests covering the typical-case formula (200ms / 4s / 4 cores → 20%), identical-snapshots (no-time-passed → 0, not NaN), counter-reset (container restart → 0, never negative), first-sample (zero prev → must not return NaN), memory-with-limit (256MiB/1GiB → 25%), memory-without-limit (limit=0 → 0, no division-by-zero). Deliberately split from the streaming-decode part since the math is where people get it wrong.
+  - `02-buildkit-tar` (`buildtar` package): `BuildContext([]File) ([]byte, error)` — assemble an in-memory tar suitable for `cli.ImageBuild`. 5 tests covering single-file round-trip, multi-file order + mode + body preservation, empty-input-is-valid-empty-tar, binary-data-survives (256-byte payload of every byte value), tar-terminator-block-present (catches missing `tw.Close()`). Test helper `readBack` does the inverse with `tar.NewReader`.
+  - `03-restart-on-exit` (`restart` package): `ShouldRestart(events.Message) bool` + `Run(ctx, DockerAPI) error`. `DockerAPI` = `Events` + `ContainerStart`. 10 tests: 5 for `ShouldRestart` (non-zero-exit triggers, exit=0 ignored — `docker stop` clean shutdown, non-container Type ignored, non-die Action ignored, missing exitCode attribute is conservatively false), 5 for `Run` (restarts on non-zero exit, doesn't restart clean exit, continues after `ContainerStart` error, propagates transport errors from `errCh`, returns nil on ctx-cancel). `fakeAPI` is channel-backed so the test drives the runner by `<-` into its `msgCh`.
+- All exercise/mini-project tests carry `//go:build exercise`; default `go test ./...` stays green (all 10 `09-docker` runtime packages show `[no test files]`).
+- Verified: `go build ./...`, `go vet ./...`, `go vet -tags=exercise ./...`, `go test ./...` all clean. `go test -tags=exercise ./09-docker/...` shows expected failures: mini-project (12), exercise 01 (2 — the other 4 stats tests pass coincidentally because zero matches their edge-case expectations), exercise 02 (5), exercise 03 (5 — others pass coincidentally). No panics, no hangs.
+- `09-docker/PLAN.md` Status flipped (Examples/Mini-project/Exercises ticked; README walkthrough still ☐); `09-docker/README.md` status header updated.
+- **Go version held at 1.26.0** — docker/docker v28.5.2 didn't require a bump beyond what client-go already pulled in last session. CI `go-version: '1.26'` unchanged.
+
+**Files touched:** ~22 new files under `09-docker/` (examples + mini-project + exercises). `go.mod`, `go.sum` updated. Docker deps added: `github.com/docker/docker` v28.5.2+incompatible + ~25 transitive deps (containerd/errdefs, distribution/reference, docker/go-connections, docker/go-units, moby/docker-image-spec, opencontainers/image-spec, opencontainers/go-digest, several go.opentelemetry.io/* packages, moby/sys/atomicwriter, moby/term, morikuni/aec, etc.).
+
+**Open / next:**
+
+- User to work through examples 01→06 (each TODO-block in `main.go`)
+- Implement `image-pruner` until `go test -tags=exercise ./09-docker/mini-project/...` is green
+- Implement the 3 exercises in any order
+- Walkthrough doc in `09-docker/README.md` (currently stub + comparison table)
+- Examples 01-06 require a running Docker daemon (`docker info` must succeed) to actually run; they compile and lint clean without one
+- Next scaffolding step (future session): `10-observability/`
+
+**Notes:**
+
+- **`+incompatible` in `github.com/docker/docker v28.5.2+incompatible`** is expected — the moby/docker repo doesn't declare a `go.mod` major version (still on v0.x.y in its own go.mod for backward-compat reasons). The "+incompatible" suffix is Go modules' way of saying "I trust you, package author, that v28 means major version 28 despite the missing /v28 path segment." Not a problem; this is the canonical import path everyone uses.
+- **API version negotiation is non-optional.** Without `client.WithAPIVersionNegotiation()`, your tool pins to the SDK's compile-time max API version — and any older daemon (any docker host older than the SDK release) rejects your calls with "client too new." The pattern is so universal it should be muscle memory. Documented in 01-connect's README.
+- **The pull-reader drain footgun** in 03-pull-and-run is the #1 source of "my pull silently doesn't finish" bugs. The daemon considers the pull "in progress" until the response body is read to EOF. `io.Copy(io.Discard, rc)` is mandatory even if you don't care about the bytes. Documented inline in the example AND in its README.
+- **`stdcopy.StdCopy` vs `io.Copy`** — without a TTY, docker multiplexes stdout+stderr over one stream with an 8-byte-per-chunk header. `io.Copy(stdout, logs)` writes the header bytes into your output. With `Tty: true` on container create, the stream ISN'T multiplexed and `StdCopy` would misread it. 04-logs-stream's README has the full frame diagram + the TTY-detection pattern (Inspect first).
+- **`ContainerWait`'s two-channel return** is the SDK's "long-poll-until-condition" pattern. Same shape as `Events` (06). Always select on the errCh too — daemon-going-away is silent on the statusCh.
+- **Mini-project `--force` regression catcher:** `TestSync_ForceFlagThreadsThrough` exists because it's easy to thread `Force` from CLI → `Policy` but forget to copy it into `RemoveOptions.Force` at the actual call site. The test uses a `captureRemoveFake` wrapper to assert the value lands at the right point.
+- **Mini-project policy OR-ing** matches `docker image prune --filter "until=168h"` semantics: an image hits the prune list if ANY enabled policy says yes. The `RemoveUnused` axis is a separate filter — even an old, untagged image is kept if a stopped container references it. Tests pin this contract.
+- **Exercise 01 (container-stats) deliberately omits the streaming-decode part.** The interesting bug is the math: cumulative-counter → delta → percentage with the `onlineCPUs` multiplier. People get the `onlineCPUs` factor wrong all the time (cap at 100% even when the container is using 4 cores). The "wire it to a real daemon" is documented in the exercise's README as a follow-up.
+- **Exercise 01 first-sample test (`TestCPUPercent_FirstSample`)** explicitly only asserts "must not return NaN" — both conventions (return 0 for first sample, OR return the value computed against zero-prev) are accepted. The NaN case is the actual bug; a sane implementation never produces it.
+- **Exercise 03 `ShouldRestart` test pins "missing exitCode → false"** as the conservative choice. A real-world daemon should always include the attribute on a die event, but defensive code shouldn't assume it.
+- **Exercise 03 `Run` continues on `ContainerStart` errors** — the daemon being flaky on one container shouldn't stop the supervisor. Same shape as the mini-project's "log and keep going" approach.
+
+---
+
+## 2026-05-22 — `08-kubernetes/` scaffolded
+
+**Goal:** Flesh out `08-kubernetes/` following the `07-aws/` pattern: examples with TODOs, mini-project + tests, exercises with failing tests. Spec is in `08-kubernetes/PLAN.md`. (SESSIONS note from the prior entry said "08-iac-tf-with-go" — that was a typo for the section title; root README/PLAN sequence has 08 as Kubernetes. IaC is section 11.)
+
+**Done:**
+
+- 6 example folders, each with TODO-style `main.go` + concept README:
+  - `01-load-config` (`rest.InClusterConfig` → fall back to `clientcmd.BuildConfigFromFlags` + `Discovery().ServerVersion()` smoke probe)
+  - `02-list-pods` (`CoreV1().Pods(ns).List` + label selectors + the `Pods("")` all-namespaces convention + the most-touched fields on `corev1.Pod`)
+  - `03-get-deployment` (`AppsV1().Deployments(ns).Get` + Spec/Status split + `apierrors.IsNotFound`)
+  - `04-watch-basic` (`Watch(ctx, opts) watch.Interface` + `ResultChan` consumption + the "raw watch dies" footgun explanation that motivates 05)
+  - `05-informer` (`NewSharedInformerFactoryWithOptions` + ResourceEventHandlerFuncs + resync semantics + the DeletedFinalStateUnknown tombstone case + `WaitForCacheSync`)
+  - `06-create-configmap` (`Create(ctx, obj, CreateOptions{})` + ObjectMeta vs server-filled fields + `IsAlreadyExists` + server-side-apply mention as the production-grade alternative)
+- Mini-project `crashloop-alert`: informer-based watcher + dedup + pluggable Sink (stdout or webhook). Scaffold split into `IsCrashLooping(*Pod) bool` / `CrashLoopingContainer(*Pod) string` / `Deduper` (clock-injectable via `Now func() time.Time`) / `Sink` interface with `StdoutSink` + `WebhookSink` impls / `newPodHandler` (closes over deduper + sink) / `Run(ctx, kubernetes.Interface, ns, *Deduper, Sink, errOut) error`. `main_test.go` has 11 tests covering: detection (Waiting/CrashLoopBackOff vs Running vs ImagePullBackOff vs multi-container any-counts), Deduper (first-pass, blocks-within-cooldown, alerts-after, per-key isolation), StdoutSink writes parseable JSON line, WebhookSink POSTs JSON and errors on non-2xx, end-to-end `Run` test using `fake.NewSimpleClientset` (verifies a crashlooping pod fires exactly one alert and a healthy pod is silent), and a dedup test that drives an Update through the fake clientset and verifies the handler suppresses.
+- 3 exercises with failing tests under `//go:build exercise`:
+  - `01-namespace-audit` (`audit` package): `Audit(ctx, NamespaceAPI, requiredLabel) ([]string, error)`. 5 tests: flags-missing-label, all-present, empty-value-counts-as-present (kubectl-equivalent contract), API-order preservation, list-error propagates. `NamespaceAPI` interface = the one `List` method the package needs.
+  - `02-resource-counter` (`counter` package): `Count(ctx, ClusterAPI) ([]Row, error)` — pods/deployments/services per namespace. 5 tests: tally-per-ns, empty cluster, namespace-with-no-resources, ns-order preservation, error propagation. `ClusterAPI` = 4 methods (one List per resource type, judgment call vs four one-method interfaces).
+  - `03-rolling-restart` (`rollrestart` package): `RollingRestart(ctx, DeploymentAPI, ns, name, now time.Time) error` — patches the pod template's `kubectl.kubernetes.io/restartedAt` annotation, same key kubectl uses, so it plays nicely with `kubectl rollout status`. 5 tests: patch type is StrategicMerge, name plumbed through, body parses as JSON with the right RFC3339 annotation, error propagates, two calls produce distinct bodies (timestamp refresh check). `DeploymentAPI` interface = just the `Patch` method.
+- All exercise/mini-project tests carry `//go:build exercise`; default `go test ./...` stays green. Default suite shows all 8 `08-kubernetes` runtime packages as `[no test files]` (mini-project test gated; example packages are stub-only main.go).
+- Verified: `go build ./...`, `go vet ./...`, `go vet -tags=exercise ./...`, `go test ./...` all clean. `go test -tags=exercise ./08-kubernetes/...` shows expected failures: mini-project (9 explicit + 4 stub-coincidence passes), exercise 01 (5), 02 (5), 03 (5). No panics, no hangs.
+- `08-kubernetes/PLAN.md` Status flipped (Examples/Mini-project/Exercises ticked; README walkthrough still ☐); `08-kubernetes/README.md` status header updated.
+- **CI bump:** `go get k8s.io/client-go@latest` bumped `go.mod` from `go 1.24` → `go 1.26.0` (toolchain requirement of client-go v0.36.1). Updated `.github/workflows/ci.yml` `go-version: '1.24'` → `'1.26'` to match.
+
+**Files touched:** ~28 new files under `08-kubernetes/` (examples + mini-project + exercises). `go.mod`, `go.sum`, `.github/workflows/ci.yml` updated. k8s deps added: `k8s.io/api`, `k8s.io/apimachinery`, `k8s.io/client-go` v0.36.1 + ~30 transitive deps.
+
+**Open / next:**
+
+- User to work through examples 01→06 (each TODO-block in `main.go`)
+- Implement `crashloop-alert` until `go test -tags=exercise ./08-kubernetes/mini-project/...` is green
+- Implement the 3 exercises in any order
+- Walkthrough doc in `08-kubernetes/README.md` (currently stub + comparison table)
+- Examples 01-06 require a reachable k8s cluster (minikube/kind/colima) to actually run; they compile and lint clean without
+- Next scaffolding step (future session): `09-docker/`
+
+**Notes:**
+
+- **`Pods("")` all-namespaces convention** is documented in 02-list-pods README. It's a client-go thing — Python's k8s client takes an explicit `all_namespaces=True` kwarg.
+- **Spec vs Status doctrine** in 03-get-deployment is the most-load-bearing concept in all of client-go. The example pins it with `Spec.Replicas` (your intent) vs `Status.ReadyReplicas` (what the controller reconciled).
+- **Raw Watch vs Informers** — 04's README explicitly motivates 05 by listing the failure modes of raw watches (connection rotation, etcd compaction, no initial state). The reader should leave 04 frustrated and 05 relieved.
+- **Informer resync vs real updates:** UpdateFunc has to be idempotent because the factory re-fires it every resync period (30s in the examples). 05's README pins this — "spamming work on every resync is the most common informer bug."
+- **The `DeletedFinalStateUnknown` tombstone case** is acknowledged in 05's README but the example code skips it. Reason: the example's other concepts are already heavy; tombstones are a "thing to know exists" not a thing to write the first time.
+- **Mini-project: `Run` blocks on `<-ctx.Done()`** and returns nil on clean shutdown — same shape as 05-informer. The end-to-end test cancels the ctx to stop the goroutine.
+- **Mini-project: `fake.NewSimpleClientset(initialObjs...)`** is the gateway drug for k8s testing — you can pre-seed pods, then the informer factory built on top delivers them as Add events to your handler. The `TestRun_InformerFiresOnCrashLoopingPod` test relies on this entirely; no real cluster needed.
+- **Mini-project: dedup uses a real-clock wallclock**, not an event-version counter. That's the right choice for a per-pod alert rate limit; an event-version counter would be wrong (different pods could share keys, resync would reset, etc.). Test injects `Now func() time.Time` to keep it deterministic — same fake-clock pattern as 06-testing/02-fake-clock.
+- **Exercise 02 uses a single 4-method interface** rather than four one-method interfaces. The exercise's README acknowledges this is a judgment call — both are idiomatic.
+- **Exercise 03 patches `kubectl.kubernetes.io/restartedAt`** — same key kubectl uses, so the tool's restarts are visible to `kubectl rollout status` / `kubectl rollout history`. The README pins this WHY so future-me doesn't change the key thinking it's arbitrary.
+- **Exercise 03 injects `now time.Time`** instead of having tests inject a Now function. Reason: this function does one thing once per call — passing a value is simpler than passing a clock. Same trade-off discussion as in 06-testing/02-fake-clock README.
+- **CI Go version was already mismatched** (1.24 in CI, but go.mod was bumped by the AWS SDK to 1.24 in last session — and now client-go v0.36.1 bumps it again to 1.26.0). Bumped CI to 1.26 to match. Watch for this every time we add a major SDK.
+
+---
+
+## 2026-05-22 — `07-aws/` scaffolded
+
+**Goal:** Flesh out `07-aws/` following the `06-testing/` pattern: examples with TODOs, mini-project + tests, exercises with failing tests. Spec is in `07-aws/PLAN.md`.
+
+**Done:**
+
+- 7 example folders, each with TODO-style `main.go` + concept README:
+  - `01-config-and-creds` (`config.LoadDefaultConfig` + the credentials chain + `cfg.Credentials.Retrieve`)
+  - `02-s3-list` (ListBuckets + `s3.NewListObjectsV2Paginator`)
+  - `03-s3-upload-download` (PutObject Body=io.Reader + GetObject Body=io.ReadCloser round-trip)
+  - `04-s3-presigned` (`s3.NewPresignClient` + `s3.WithPresignExpires(5*time.Minute)`)
+  - `05-ec2-list` (DescribeInstancesPaginator + Filter DSL + Reservations→Instances flatten note)
+  - `06-assume-role` (`sts.NewFromConfig` + `stscreds.NewAssumeRoleProvider` + `aws.NewCredentialsCache` wrap)
+  - `07-mocking-sdk` (interface-at-consumption-site pattern, ships with WORKING `s3util_test.go` — same deviation as `06-testing` examples, since the lesson IS the testing pattern)
+- Mini-project `s3sync`: mirror local dir → S3 bucket. Scaffold split into `WalkLocal` / `computeMD5` / `ListRemote` / `Plan` / `Sync` + an `S3API` interface (3 methods: ListObjectsV2, PutObject, DeleteObject). `main_test.go` has 9 tests covering: forward-slash-key walking, ETag-quote unwrap, plan rules (upload-new/changed, skip-identical, omit-extras-without-delete, include-extras-with-delete), happy-path Sync, dry-run-doesn't-call-AWS, concurrency-peak (uses atomic.Int32 + CAS to record max in-flight + `holdPut` channel pattern lifted from 05-concurrency mini-project), --delete behavior, error propagation. Uses `fakeS3` — no real AWS.
+- 3 exercises with failing tests under `//go:build exercise`:
+  - `01-bucket-inventory` (`inventory` package): `Inventory(ctx, api) ([]Row, error)` + `WriteCSV(w, rows) error`. 5 tests covering empty account, flatten-buckets-and-objects, bucket order preservation, single-bucket error aborts, CSV header + RFC3339 timestamps. `S3API` interface = ListBuckets + ListObjectsV2.
+  - `02-find-untagged` (`untagged` package): `FindUntagged(ctx, api, requiredKey) ([]string, error)`. 5 tests covering missing-tag flag, empty-VALUE counts as present, multi-reservation flatten, paginator-must-consume-both-pages, error propagation. `EC2API` interface = DescribeInstances.
+  - `03-cleanup-old` (`cleanup` package): `Cleanup(ctx, api, bucket, prefix, cutoff, dryRun) ([]string, error)`. 5 tests covering only-old-deleted, dry-run-no-delete-calls, prefix-passed-through, list-error-aborts, delete-error-propagates. `S3API` interface = ListObjectsV2 + DeleteObject.
+- All exercise/mini-project tests carry `//go:build exercise` so default `go test ./...` stays green. Default suite shows `07-aws/07-mocking-sdk` as ok (its tests target the working canonical impl — same deviation from earlier sections as 06-testing examples).
+- Verified: `go build ./...`, `go vet ./...`, `go vet -tags=exercise ./...`, `go test ./...` all clean. `go test -tags=exercise ./07-aws/...` shows expected failures: mini-project (9), exercise 01 (5), 02 (5), 03 (5).
+- `07-aws/PLAN.md` Status flipped (Examples/Mini-project/Exercises ticked; README walkthrough still ☐); `07-aws/README.md` status header updated.
+- **CI bump:** `go get` of AWS SDK v2 bumped `go.mod` from `go 1.23.0` → `go 1.24` (toolchain requirement of `aws-sdk-go-v2`). Updated `.github/workflows/ci.yml` `go-version: '1.22'` → `'1.24'` to match.
+
+**Files touched:** ~26 new files under `07-aws/` (examples + mini-project + exercises). `go.mod`, `go.sum`, `.github/workflows/ci.yml` updated. AWS deps added: `aws-sdk-go-v2`, `config`, `service/s3`, `service/ec2`, `service/sts`, `credentials/stscreds`.
+
+**Open / next:**
+
+- User to work through examples 01→07 (each TODO-block in `main.go`; example 07 ships fully working — extend its TODO instead)
+- Implement `s3sync` until `go test -tags=exercise ./07-aws/mini-project/...` is green
+- Implement the 3 exercises in any order
+- Walkthrough doc in `07-aws/README.md` (currently stub + comparison table)
+- Examples 01-06 require AWS creds + (often) a real bucket/instance/role to actually run; they compile and lint clean without
+- Next scaffolding step (future session): `08-iac-tf-with-go/` (per the root PLAN — IaC integration / wrapping terraform from Go)
+
+**Notes:**
+
+- **Examples ship as TODO `main.go`** for 01-06 (matching 05-concurrency / 04-http-servers convention), but 07-mocking-sdk ships with **working code + tests** because its entire lesson IS the testing pattern. Same deviation as 06-testing examples — documented in 07's README.
+- **The S3API interface in `s3sync` is intentionally not a single god-interface** but only the 3 methods the tool actually uses. Same pattern enforced in each exercise — every exercise defines its OWN narrow interface. That's the lesson worth repeating.
+- **`fakeS3` in mini-project tracks peak in-flight with `atomic.Int32` + CAS** — copied from `05-concurrency/mini-project/fanout-ping`. The `holdPut chan struct{}` channel that blocks all PutObject calls until the test closes it is new for this section, and is the cleanest way I found to assert concurrency parallelism with a fake.
+- **`waitForInflight` busy-waits without `time.Sleep`** — it yields via a tiny goroutine + channel-receive. Reason: time.Sleep introduces unrelated flakiness if a worker is just slow on CI. The wait loop bounds at 2 seconds.
+- **In `FindUntagged`, empty-VALUE is treated as "tag is present"** — this is a real AWS behavior call (Owner="" is common, often meaning "intentionally unowned-but-tracked"). The test pins this contract.
+- **In `Cleanup`, the fake honours the Prefix filter server-side** so the prefix-passthrough test isn't pure ceremony — it verifies the user actually passes Prefix into the Input.
+- **`PresignClient` doesn't call AWS** — the signing is local. Noted in `04-s3-presigned/README.md` for cost/CloudTrail awareness.
+- **`aws.NewCredentialsCache(provider)`** in 06 is non-obvious — without it every API call re-runs AssumeRole. Documented in the example's README.
+- **CI Go version was already mismatched** (1.22 in CI vs 1.23.0 in go.mod from previous sessions) — likely worked due to toolchain auto-download. Bumped to 1.24 now that the AWS SDK requires it explicitly.
+
 ## 2026-05-21 — `06-testing/` scaffolded
 
 **Goal:** Flesh out `06-testing/` following the `05-concurrency/` pattern: examples with TODOs, mini-project + tests, exercises with failing tests. Spec is in `06-testing/PLAN.md`.
