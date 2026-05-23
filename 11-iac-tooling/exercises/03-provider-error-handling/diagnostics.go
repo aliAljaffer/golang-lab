@@ -33,23 +33,12 @@ import (
 // WriteFileDiagnostics converts an os.WriteFile-style error into a slice
 // of actionable Terraform diagnostics.
 func WriteFileDiagnostics(path string, err error) diag.Diagnostics {
-	// TODO: if err == nil: return nil.
-	// TODO: var diags diag.Diagnostics
-	// TODO: switch {
-	// TODO: case errors.Is(err, os.ErrPermission):
-	// TODO:     diags.AddError("permission denied",
-	// TODO:         "cannot write to "+path+
-	// TODO:             ": check file mode (chmod) and ownership (chown), "+
-	// TODO:             "or run terraform with sufficient privileges.")
-	// TODO: case errors.Is(err, os.ErrNotExist):
-	// TODO:     diags.AddError("parent directory does not exist",
-	// TODO:         "cannot write to "+path+
-	// TODO:             ": the parent directory does not exist. "+
-	// TODO:             "Create it first (e.g., with a local-exec or another fileops_dir resource).")
-	// TODO: default:
-	// TODO:     diags.AddError("write failed", "write to "+path+" failed: "+err.Error())
-	// TODO: }
-	// TODO: return diags
+	// TODO: nothing-to-report case — decide what the caller sees when err is nil.
+	// TODO: dispatch on the error kind (errors.Is against the os sentinels in
+	//   the package doc; everything else is the generic branch) and AddError
+	//   with the Summary/Detail the doc specifies. Detail must be *actionable* —
+	//   the tests pin chmod/chown/privileges, create/mkdir, and that the path
+	//   plus underlying error string appear in the generic case.
 	_ = errors.Is
 	_ = os.ErrPermission
 	return nil

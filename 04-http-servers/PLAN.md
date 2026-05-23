@@ -41,7 +41,7 @@ Tests verify:
 
 ## Status
 
-- [ ] Concepts in README walkthrough
+- [x] Concepts in README walkthrough
 - [x] Examples 01-07 scaffolded (TODO blocks — user to fill in)
 - [x] Mini-project `webhook-runner` scaffolded + tests written (failing)
 - [x] Exercises scaffolded

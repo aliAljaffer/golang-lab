@@ -44,7 +44,7 @@ Verifies that the testing patterns work on real code, not just toy examples.
 
 ## Status
 
-- [ ] Concepts in README walkthrough
+- [x] Concepts in README walkthrough
 - [x] Examples 01-08 built
 - [x] Mini-project: `logstats` (kitchen-sink replacement for the original retro-tests plan — see mini-project/README.md)
 - [x] Exercises scaffolded

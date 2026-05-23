@@ -41,7 +41,7 @@ Tests verify:
 
 ## Status
 
-- [ ] Concepts in README walkthrough
+- [x] Concepts in README walkthrough
 - [x] Examples 01-07 scaffolded (TODOs to fill in)
 - [x] Mini-project `gh-repo-stats` scaffolded (failing tests behind `//go:build exercise`)
 - [x] Exercises scaffolded

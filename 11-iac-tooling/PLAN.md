@@ -40,7 +40,7 @@ Includes a `TestAcc*` stub that skips without `TF_ACC=1` — extension exercise:
 
 ## Status
 
-- [ ] Concepts in README walkthrough
+- [x] Concepts in README walkthrough
 - [x] Examples 01-02 built
 - [x] Mini-project `tf-provider-fileops` built + tested
 - [x] Exercises scaffolded

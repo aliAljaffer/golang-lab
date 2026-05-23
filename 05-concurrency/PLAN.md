@@ -45,7 +45,7 @@ Tests verify:
 
 ## Status
 
-- [ ] Concepts in README walkthrough
+- [x] Concepts in README walkthrough
 - [x] Examples 01-08 scaffolded (TODO blocks — user to fill in)
 - [x] Mini-project `fanout-ping` scaffolded + tests written (failing)
 - [x] Exercises scaffolded

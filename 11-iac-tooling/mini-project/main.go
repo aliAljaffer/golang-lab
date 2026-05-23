@@ -139,39 +139,43 @@ func extractVars(ctx context.Context, m types.Map) (map[string]string, error) {
 }
 
 func (r *templatedFile) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	// TODO: read plan into templatedFileModel.
-	// TODO: extract Vars via extractVars.
-	// TODO: call WriteTemplatedFile(path, template, vars) → content, err.
-	// TODO: on err, resp.Diagnostics.AddError("write failed", err.Error()) + return.
-	// TODO: data.Content = types.StringValue(content); data.ID = data.Path.
-	// TODO: resp.Diagnostics.Append(resp.State.Set(ctx, &data)...).
+	// TODO: Create flow: pull the user's config from req.Plan, do the write,
+	//   then persist Computed attributes (content, id) back to resp.State.
+	//   Two things that will bite you if forgotten:
+	//     - vars is a types.Map; extractVars unboxes it for the helper.
+	//     - the id attribute is what Terraform uses to identify the resource
+	//       across runs; pick something stable from the user input.
+	//   Every framework call returns diagnostics — append + bail on HasError.
 	_ = ctx
 	_ = req
 	_ = resp
 }
 
 func (r *templatedFile) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	// TODO: read state into the model.
-	// TODO: call ReadTemplatedFile(state.Path).
-	// TODO: if errors.Is(err, os.ErrNotExist): resp.State.RemoveResource(ctx) + return (drift).
-	// TODO: if other err: AddError + return.
-	// TODO: data.Content = types.StringValue(content); write back to state.
+	// TODO: Read is the refresh step. Pull current state, re-stat the file,
+	//   reconcile. The interesting case is "file is gone" — Terraform's word
+	//   for that is *drift*, and there's a specific resp.State call that tells
+	//   the framework "drop this from state so the next plan recreates it".
+	//   Distinguish that from other errors (which should surface to the user).
 	_ = ctx
 	_ = req
 	_ = resp
 }
 
 func (r *templatedFile) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	// TODO: identical to Create but source is req.Plan, ID is preserved from state.
+	// TODO: Update is Create's twin — same write path, but the id was
+	//   already established and must round-trip from prior state, not be
+	//   re-derived from the plan. (path changes go through Replace, not here,
+	//   because of the RequiresReplace plan modifier on path.)
 	_ = ctx
 	_ = req
 	_ = resp
 }
 
 func (r *templatedFile) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	// TODO: read state into the model.
-	// TODO: call DeleteTemplatedFile(state.Path).
-	// TODO: on err: AddError + return. (Missing file → already ignored by helper.)
+	// TODO: pull the path out of state and ask the helper to delete it. The
+	//   idempotency policy (missing file is fine) lives in the helper, not
+	//   here — don't duplicate it.
 	_ = ctx
 	_ = req
 	_ = resp

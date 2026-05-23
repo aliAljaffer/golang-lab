@@ -38,7 +38,7 @@ Tests verify:
 
 ## Status
 
-- [ ] Concepts documented in README.md walkthrough
+- [x] Concepts documented in README.md walkthrough
 - [x] Examples 01-06 scaffolded (TODO-style — fill in `main.go` of each)
 - [x] Mini-project `dirsize` scaffolded with failing tests
 - [x] Exercises scaffolded with failing tests

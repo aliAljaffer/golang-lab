@@ -50,7 +50,7 @@ Tests verify metrics are exposed and contain expected series.
 
 ## Status
 
-- [ ] Concepts in README walkthrough
+- [x] Concepts in README walkthrough
 - [x] Examples 01-06 built
 - [x] Mini-project: instrument webhook-runner
 - [x] Exercises scaffolded

@@ -41,7 +41,7 @@ Tests verify:
 
 ## Status
 
-- [ ] Concepts in README walkthrough
+- [x] Concepts in README walkthrough
 - [x] Examples 01-07 scaffolded (TODO-style — fill in `main.go` of each)
 - [x] Mini-project `logrotate` scaffolded with failing tests
 - [x] Exercises scaffolded with failing tests

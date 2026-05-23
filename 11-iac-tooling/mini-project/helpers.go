@@ -11,9 +11,9 @@ import (
 // A missing key is an error (`missingkey=error`) — silent substitution of
 // "<no value>" into a file Terraform manages is a security smell.
 func RenderTemplate(tmpl string, vars map[string]string) (string, error) {
-	// TODO: parse tmpl with template.New("file").Option("missingkey=error").
-	// TODO: execute against vars into a bytes.Buffer.
-	// TODO: return buf.String(), nil — or wrap parse/exec error.
+	// TODO: render via text/template. The docstring above pins the policy
+	//   that matters — missing keys must error, not silently emit "<no value>".
+	//   Look up how to set that on a *template.Template before parsing.
 	_ = template.New
 	_ = bytes.Buffer{}
 	return "", errors.New("RenderTemplate not implemented")
@@ -22,10 +22,9 @@ func RenderTemplate(tmpl string, vars map[string]string) (string, error) {
 // WriteTemplatedFile renders the template and writes the result to `path`.
 // Returns the rendered content (what landed on disk).
 func WriteTemplatedFile(path, tmpl string, vars map[string]string) (string, error) {
-	// TODO: content, err := RenderTemplate(tmpl, vars).
-	// TODO: if err: return "", err.
-	// TODO: os.WriteFile(path, []byte(content), 0o644).
-	// TODO: return content, nil — or the write error.
+	// TODO: render first, then write. The returned content is exactly what
+	//   landed on disk — Terraform stores it under .content for drift detection,
+	//   so do not return the un-rendered template by accident.
 	_ = path
 	_ = tmpl
 	_ = vars
@@ -36,9 +35,9 @@ func WriteTemplatedFile(path, tmpl string, vars map[string]string) (string, erro
 // Returns os.ErrNotExist (wrapped) if the file is gone — that's how the
 // resource detects drift.
 func ReadTemplatedFile(path string) (string, error) {
-	// TODO: b, err := os.ReadFile(path) — return ("", err) on error
-	// TODO: (os.ErrNotExist is already wrapped by os.ReadFile, so just propagate).
-	// TODO: return string(b), nil.
+	// TODO: read the file. The contract above demands that os.ErrNotExist
+	//   survives errors.Is — the resource's Read uses that to detect drift.
+	//   Pick a stdlib call that preserves it (or wrap deliberately).
 	_ = path
 	return "", errors.New("ReadTemplatedFile not implemented")
 }
@@ -47,9 +46,9 @@ func ReadTemplatedFile(path string) (string, error) {
 // Terraform may call Delete on a resource whose file was already removed
 // manually, and a re-run of `terraform destroy` must not fail.
 func DeleteTemplatedFile(path string) error {
-	// TODO: err := os.Remove(path).
-	// TODO: if errors.Is(err, os.ErrNotExist): return nil.
-	// TODO: return err.
+	// TODO: delete the file, but make the "already gone" case a success —
+	//   the docstring above explains why (re-runnable destroy). Every other
+	//   error propagates.
 	_ = path
 	_ = os.Remove
 	return errors.New("DeleteTemplatedFile not implemented")

@@ -47,7 +47,7 @@ Tests verify:
 
 ## Status
 
-- [ ] Concepts in README walkthrough
+- [x] Concepts in README walkthrough
 - [x] Examples 01-07 built
 - [x] Mini-project `s3sync` built + tested
 - [x] Exercises scaffolded

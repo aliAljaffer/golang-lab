@@ -41,10 +41,10 @@ type FileInfo struct {
 // Exists=false (NOT an error — a non-existent file is a valid query
 // result). Other errors (permission denied, etc.) are returned.
 func ReadFileInfo(path string) (FileInfo, error) {
-	// TODO: stat the path with os.Stat.
-	// TODO: if errors.Is(err, os.ErrNotExist): return FileInfo{Path: path, Exists: false}, nil
-	// TODO: if err != nil: return FileInfo{}, err
-	// TODO: return FileInfo{Path: path, Exists: true, Size: st.Size()}, nil
+	// TODO: stat the file, then map the result into a FileInfo. The docstring
+	//   above pins the policy: ErrNotExist is *not* an error here (the data
+	//   source answers "does it exist?" — false is a valid answer); other
+	//   errors propagate. Use errors.Is to match the sentinel across wrappers.
 	_ = errors.Is
 	_ = os.Stat
 	return FileInfo{}, errors.New("ReadFileInfo not implemented")
@@ -63,32 +63,28 @@ type FileInfoDS struct{}
 func NewFileInfoDS() datasource.DataSource { return &FileInfoDS{} }
 
 func (d *FileInfoDS) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
-	// TODO: resp.TypeName = req.ProviderTypeName + "_file_info"
+	// TODO: set the type name. Convention is "<provider>_<thing>" — the
+	//   provider half is on req, the thing half is what the package doc names.
 	_ = req
 	_ = resp
 }
 
 func (d *FileInfoDS) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	// TODO: resp.Schema = dsschema.Schema{
-	// TODO:     Attributes: map[string]dsschema.Attribute{
-	// TODO:         "path":   dsschema.StringAttribute{Required: true},
-	// TODO:         "exists": dsschema.BoolAttribute{Computed: true},
-	// TODO:         "size":   dsschema.Int64Attribute{Computed: true},
-	// TODO:     },
-	// TODO: }
+	// TODO: declare the three attributes from the package doc. Decide which
+	//   is the user input (Required) and which are populated by Read
+	//   (Computed) — the input/output split here defines the data source.
+	//   Attribute types live in dsschema.{String,Bool,Int64}Attribute.
 	_ = resp
 	_ = dsschema.Schema{}
 }
 
 func (d *FileInfoDS) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
-	// TODO: var data FileInfoModel
-	// TODO: resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
-	// TODO: if resp.Diagnostics.HasError() { return }
-	// TODO: info, err := ReadFileInfo(data.Path.ValueString())
-	// TODO: if err != nil { resp.Diagnostics.AddError("stat failed", err.Error()); return }
-	// TODO: data.Exists = types.BoolValue(info.Exists)
-	// TODO: data.Size = types.Int64Value(info.Size)
-	// TODO: resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
+	// TODO: the Read flow is: pull the user input out of req.Config into a
+	//   FileInfoModel, call ReadFileInfo, then write the result back into
+	//   resp.State. Each framework call returns diagnostics — append them and
+	//   bail early when HasError, otherwise a later step will panic on
+	//   half-populated state. Wrap Go primitives in types.{Bool,Int64}Value
+	//   before assignment.
 	_ = ctx
 	_ = req
 	_ = resp

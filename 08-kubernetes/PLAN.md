@@ -43,7 +43,7 @@ Tests verify:
 
 ## Status
 
-- [ ] Concepts in README walkthrough
+- [x] Concepts in README walkthrough
 - [x] Examples 01-06 built
 - [x] Mini-project `crashloop-alert` built + tested
 - [x] Exercises scaffolded
