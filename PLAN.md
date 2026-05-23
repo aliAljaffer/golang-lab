@@ -78,6 +78,15 @@ Every section's `PLAN.md` is brief and tactical:
 6. ☐ User initializes git, pushes to GitHub (manual)
 7. ☐ Iterate: fill in sections in any order, following the `00-setup/` template
 
+## Capstones (`projects/`)
+
+Cross-section capstones live under [`projects/`](./projects/) with their own [`PLAN.md`](./projects/PLAN.md) and [`SESSIONS.md`](./projects/SESSIONS.md). At-a-glance status:
+
+- [x] `kube-events-to-slack` scaffolded · [ ] built (tests green)
+- [x] `s3-log-shipper` scaffolded · [ ] built (tests green)
+- [x] `gcs-log-shipper` scaffolded · [ ] built (tests green)
+- [x] `deploy-bot` scaffolded · [ ] built (tests green)
+
 ## Session protocol
 
 - Update [`SESSIONS.md`](./SESSIONS.md) at the end of every Claude session — what was done, what's open, any decisions

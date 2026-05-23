@@ -9,7 +9,7 @@ Also designed to open cleanly as an [Obsidian](https://obsidian.md/) vault for p
 ## Who this is for
 
 - Engineers comfortable with **at least one** of Python, Bash, TypeScript, or Java who want to add Go.
-- Specifically for **DevOps / Platform / SRE / Cloud** work — CLIs, HTTP clients & servers, AWS/k8s/Docker SDKs, concurrency for parallel infra tasks, observability.
+- Specifically for **DevOps / Platform / SRE / Cloud** work — CLIs, HTTP clients & servers, AWS/GCP/k8s/Docker SDKs, concurrency for parallel infra tasks, observability.
 - People who learn by doing. Every section has runnable examples + a mini-project + exercises that ship as failing tests; you write code until they pass.
 
 ## Who this isn't for
@@ -40,6 +40,7 @@ Each section is a folder. Status legend: ☐ not started · ◐ in progress · �
 | 05  | [Concurrency](./05-concurrency/README.md)     | ☐      |
 | 06  | [Testing](./06-testing/README.md)             | ☐      |
 | 07  | [AWS SDK](./07-aws/README.md)                 | ☐      |
+| 07  | [GCP SDK](./07-gcp/README.md)                 | ☐      |
 | 08  | [Kubernetes](./08-kubernetes/README.md)       | ☐      |
 | 09  | [Docker](./09-docker/README.md)               | ☐      |
 | 10  | [Observability](./10-observability/README.md) | ☐      |
