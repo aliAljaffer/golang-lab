@@ -40,20 +40,21 @@ const (
 
 // WithRequestID returns ctx with id attached.
 func WithRequestID(ctx context.Context, id string) context.Context {
-	// TODO: return context.WithValue(ctx, keyRequestID, id)
+	// TODO: attach the id under keyRequestID.
 	return ctx
 }
 
 // RequestIDFromContext returns the request ID attached to ctx, or "" if none.
 func RequestIDFromContext(ctx context.Context) string {
-	// TODO: if v, ok := ctx.Value(keyRequestID).(string); ok { return v }
-	// TODO: return ""
+	// TODO: pull the value back out as a string. Missing or wrong type
+	//   must return ""; the ok-form of the type assertion is how you avoid
+	//   panicking when the middleware didn't run.
 	return ""
 }
 
 // WithLogger returns ctx with l attached.
 func WithLogger(ctx context.Context, l *slog.Logger) context.Context {
-	// TODO: return context.WithValue(ctx, keyLogger, l)
+	// TODO: attach the logger under keyLogger.
 	return ctx
 }
 
@@ -61,8 +62,9 @@ func WithLogger(ctx context.Context, l *slog.Logger) context.Context {
 // if none. Never returns nil — this is what makes ctx-bound loggers safe
 // to call from anywhere in the codebase.
 func LoggerFromContext(ctx context.Context) *slog.Logger {
-	// TODO: if l, ok := ctx.Value(keyLogger).(*slog.Logger); ok { return l }
-	// TODO: return slog.Default()
+	// TODO: pull the logger back out; the fallback to slog.Default() is the
+	//   load-bearing detail — never return nil, or every caller has to
+	//   nil-check before logging.
 	return slog.Default()
 }
 
@@ -71,17 +73,11 @@ func LoggerFromContext(ctx context.Context) *slog.Logger {
 // X-Request-ID header is absent or empty; injecting it (rather than
 // hard-coding uuid.New) keeps tests deterministic.
 func Middleware(base *slog.Logger, idGen func() string) func(http.Handler) http.Handler {
-	// TODO: return func(next http.Handler) http.Handler {
-	// TODO:     return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-	// TODO:         id := r.Header.Get(Header)
-	// TODO:         if id == "" { id = idGen() }
-	// TODO:         w.Header().Set(Header, id)
-	// TODO:         ctx := WithRequestID(r.Context(), id)
-	// TODO:         l := base.With(slog.String("request_id", id))
-	// TODO:         ctx = WithLogger(ctx, l)
-	// TODO:         next.ServeHTTP(w, r.WithContext(ctx))
-	// TODO:     })
-	// TODO: }
+	// TODO: extract-or-mint the ID, echo it on the response header, attach
+	//   BOTH the ID and a `base.With(request_id=...)` logger to the request
+	//   context, then call next with the new context. The "with"-binding is
+	//   what makes every downstream log line carry request_id automatically;
+	//   without it, each handler has to remember to attach it.
 	_ = base
 	_ = idGen
 	return func(next http.Handler) http.Handler { return next }

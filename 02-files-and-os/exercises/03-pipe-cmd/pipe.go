@@ -10,13 +10,14 @@ import "io"
 // Each cmds[i] is [binary, args...]. Returns the final command's stdout, or
 // the first non-nil error from Start/Wait/io.
 func Pipe(input io.Reader, cmds ...[]string) ([]byte, error) {
-	// TODO: validate cmds is non-empty.
-	// TODO: construct exec.Cmd for each entry: exec.Command(c[0], c[1:]...).
-	// TODO: cmd[0].Stdin = input
-	// TODO: for i in 1..n-1: cmd[i].Stdin, _ = cmd[i-1].StdoutPipe()
-	// TODO: var out bytes.Buffer; cmd[n-1].Stdout = &out
-	// TODO: Start each cmd in order (cmd[0] first).
-	// TODO: Wait each cmd in order. Collect the first error.
-	// TODO: return out.Bytes(), firstErr.
+	// TODO: build N exec.Cmds and wire stdin↔stdout between consecutive
+	//   ones (StdoutPipe is the right API — io.Pipe also works but is
+	//   fiddlier). The non-obvious bits the test pins:
+	//     - Start each in order (left → right) BEFORE any Wait, otherwise
+	//       early commands fill their stdout buffer and deadlock.
+	//     - Wait each in order, collecting the first error but still
+	//       reaping the rest (avoid zombie processes).
+	//     - the LAST command's stdout has to land somewhere you can read
+	//       — a bytes.Buffer assigned to cmd[n-1].Stdout is the simplest.
 	return nil, nil
 }

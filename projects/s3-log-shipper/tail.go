@@ -53,17 +53,18 @@ type Tailer struct {
 // error (e.g. permission denied; missing-file is NOT non-retryable — the
 // file may appear later).
 func (t *Tailer) Run(ctx context.Context, out chan<- Line) error {
-	// TODO: load the starting offset via t.Store.Load(t.Path).
-	// TODO: open the file (os.Open). If it doesn't exist yet, sleep PollInterval and retry until ctx is done.
-	// TODO: stat the file; if start offset > size, reset to 0 (truncation).
-	// TODO: seek to the start offset.
-	// TODO: wrap the *os.File in a bufio.Reader; track current offset locally.
-	// TODO: loop:
-	//         - ReadBytes('\n'). If io.EOF and the buffer has no trailing '\n':
-	//             - hold the partial bytes; sleep PollInterval; restat for truncation; continue.
-	//         - on a full line, strip the '\n', advance currentOffset by len(line)+1,
-	//           and select { case out <- Line{Path, body, currentOffset}: t.Store.Save(...) ; case <-ctx.Done(): return nil }.
-	// TODO: respect ctx.Done() between reads.
+	// TODO: implement the tail loop. The behaviour contract above is the spec.
+	//   The interesting decisions:
+	//     - cold-start vs resume: t.Store.Load decides which.
+	//     - truncation detection: stat.Size < currentOffset means the file
+	//       got rotated; the test pins "reset to 0 and keep going".
+	//     - partial line at EOF: bufio.Reader.ReadBytes('\n') returns io.EOF
+	//       *with* whatever bytes it read so far. Buffer those and wait for
+	//       the newline rather than emitting a half line.
+	//     - the offset persisted on Save is the offset AFTER the line — that's
+	//       where the next read should resume from, including the '\n'.
+	//     - missing file is retryable (the writer might not exist yet); a
+	//       permission error is not.
 	return errors.New("Tailer.Run not implemented")
 }
 
@@ -82,16 +83,18 @@ type FileOffsetStore struct {
 // Load reads the offset for path. Returns (0, nil) if no offset has been
 // saved yet (the file genuinely doesn't exist).
 func (s *FileOffsetStore) Load(path string) (int64, error) {
-	// TODO: compute the sidecar path (sibling file or under s.Dir).
-	// TODO: read its bytes; if os.IsNotExist(err), return (0, nil).
-	// TODO: parse the bytes as a base-10 int64; return it.
+	// TODO: load the offset for `path`. The "no offset yet" case must be
+	//   silent: return (0, nil), not an error — the Tailer relies on that
+	//   to cold-start. Other read or parse errors do propagate.
 	return 0, errors.New("FileOffsetStore.Load not implemented")
 }
 
 // Save writes off to the sidecar atomically: write tmp file, fsync, rename.
 func (s *FileOffsetStore) Save(path string, off int64) error {
-	// TODO: compute the sidecar path.
-	// TODO: ensure the parent dir exists (os.MkdirAll if s.Dir was provided).
-	// TODO: create a tmp file in the same dir; write strconv.FormatInt(off, 10); fsync; close; os.Rename to the final name.
+	// TODO: persist `off` atomically. The pattern that survives a crash
+	//   mid-write is: write to a temp file in the same directory, fsync,
+	//   close, then os.Rename to the final name. Skipping the fsync is the
+	//   classic "works in tests, loses data in prod" bug — the rename is
+	//   only durable if the temp file's bytes are.
 	return errors.New("FileOffsetStore.Save not implemented")
 }

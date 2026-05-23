@@ -63,12 +63,11 @@ type Policy struct {
 // Plan does NOT mutate the daemon. It's pure given the inputs returned by
 // the API. Sync calls Plan then issues ImageRemove for each ID, unless DryRun.
 func Plan(images []image.Summary, containers []container.Summary, p Policy, now time.Time) []string {
-	// TODO: build a set of "referenced" image IDs from containers (c.ImageID).
-	// TODO: walk images; for each img, decide "should remove" by OR-ing:
-	// TODO:   - p.RemoveUntagged && isUntagged(img)
-	// TODO:   - p.RemoveOlderThan > 0 && age(img.Created, now) > p.RemoveOlderThan
-	// TODO:   - p.RemoveUnused && referenced[img.ID] == false
-	// TODO: collect img.ID; sort; return.
+	// TODO: produce the list of IDs to remove. The three policy rules are OR'd
+	//   per image — any one match flags it. The "unused" check is the only one
+	//   that needs the container list (build a set of referenced ImageIDs).
+	//   Sort the result lexicographically — the tests assert deterministic
+	//   ordering and so does any reasonable CLI user.
 	_ = sort.Strings
 	return nil
 }
@@ -77,27 +76,19 @@ func Plan(images []image.Summary, containers []container.Summary, p Policy, now 
 // represents dangling images as having `RepoTags` of `[]string{"<none>:<none>"}`
 // (or sometimes nil). Either counts as untagged.
 func isUntagged(img image.Summary) bool {
-	// TODO: nil or empty -> true.
-	// TODO: if it contains only "<none>:<none>" -> true.
-	// TODO: otherwise false.
+	// TODO: detect dangling. The daemon represents that as either an empty
+	//   RepoTags or RepoTags == ["<none>:<none>"]. Both shapes must count.
 	return false
 }
 
 // Sync executes the plan against api. Returns the IDs that were (or would be)
 // removed. In dry-run mode, no ImageRemove calls happen.
 func Sync(ctx context.Context, api DockerAPI, p Policy, now time.Time, out io.Writer) ([]string, error) {
-	// TODO: images, err := api.ImageList(ctx, image.ListOptions{All: true})
-	// TODO: handle err.
-	// TODO: containers, err := api.ContainerList(ctx, container.ListOptions{All: true})
-	// TODO: handle err.
-	// TODO: ids := Plan(images, containers, p, now)
-	// TODO: for _, id := range ids:
-	// TODO:     fmt.Fprintf(out, "%s %s\n", actionPrefix(p.DryRun), id)
-	// TODO:     if p.DryRun { continue }
-	// TODO:     if _, err := api.ImageRemove(ctx, id, image.RemoveOptions{Force: p.Force}); err != nil {
-	// TODO:         return nil, fmt.Errorf("remove %s: %w", id, err)
-	// TODO:     }
-	// TODO: return ids, nil
+	// TODO: list images + containers (both with All:true so stopped containers
+	//   count for the unused-reference check), feed Plan, then either print
+	//   or remove per p.DryRun. The doc comment above pins the output prefix
+	//   ("would remove" vs "removed") via actionPrefix. Wrap remove errors
+	//   with the ID so the user knows which one failed.
 	return nil, errors.New("Sync not implemented")
 }
 

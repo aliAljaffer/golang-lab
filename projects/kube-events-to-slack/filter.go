@@ -37,10 +37,9 @@ type Filter struct {
 //   - if MaxAge > 0 and (Now() - EventAt(event)) > MaxAge -> false
 //   - otherwise -> true
 func (f Filter) ShouldAlert(e *corev1.Event) bool {
-	// TODO: guard against nil event.
-	// TODO: enforce the severity allow-list (skip if Severities is empty).
-	// TODO: enforce the namespace allow-list (skip if Namespaces is empty).
-	// TODO: enforce MaxAge using EventAt(e) and (f.Now or time.Now)().
-	// TODO: return true if everything passes.
+	// TODO: apply each filter per the truth table above. Empty allow-lists
+	//   mean "no restriction" (zero-value semantics), not "deny all" — that's
+	//   what makes a default-constructed Filter useful. f.Now is also
+	//   optional: fall back to time.Now when nil.
 	return false
 }

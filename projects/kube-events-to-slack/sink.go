@@ -21,9 +21,8 @@ type StdoutSink struct {
 
 // Send writes one JSON line. Concurrency-safe iff Out is.
 func (s *StdoutSink) Send(_ context.Context, alert Alert) error {
-	// TODO: marshal alert to JSON.
-	// TODO: write the bytes followed by a single newline to s.Out.
-	// TODO: return any error from either step.
+	// TODO: emit one JSON line per call. The newline matters — downstream
+	//   `jq -c` / log aggregators key on it. ctx is ignored intentionally.
 	return errors.New("StdoutSink.Send not implemented")
 }
 
@@ -49,12 +48,10 @@ type WebhookSink struct {
 //   - 5xx / netErr  -> retry up to MaxRetries times with backoff, then error
 //   - ctx.Done()    -> abort and return ctx.Err()
 func (s *WebhookSink) Send(ctx context.Context, alert Alert) error {
-	// TODO: marshal alert into a buffer.
-	// TODO: build a *http.Request with method POST, Content-Type application/json, body=buf, using ctx.
-	// TODO: pick the client (s.Client or http.DefaultClient).
-	// TODO: do the request; check status code; on 2xx return nil; on 4xx return a permanent error.
-	// TODO: on 5xx or transport error, retry up to MaxRetries with exponential backoff (and ctx-aware sleep).
-	// TODO: surface the final error if every attempt failed.
+	// TODO: POST the JSON-encoded alert per the contract above. The
+	//   classification matters: 4xx is permanent (no retry — usually a
+	//   bad webhook URL); 5xx + transport errors are transient. ctx
+	//   cancellation must bail out mid-retry, not finish the budget.
 	_ = bytes.NewReader
 	_ = json.Marshal
 	return errors.New("WebhookSink.Send not implemented")

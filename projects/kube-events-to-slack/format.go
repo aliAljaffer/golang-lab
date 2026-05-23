@@ -40,11 +40,11 @@ type Alert struct {
 //                using EventAt(event) as the timestamp source.
 //   - At:        the same timestamp returned by EventAt(event).
 func FormatSlackMessage(e *corev1.Event, now time.Time) Alert {
-	// TODO: build the Alert per the spec above.
-	// TODO: use EventAt(e) for the "At" field.
-	// TODO: format Age as time.Duration.String() on (now - EventAt(e)).
-	// TODO: build a one-line Text summary; the test asserts on its substring content,
-	// TODO: so include severity, namespace/name, reason, count, and age.
+	// TODO: populate every field per the spec above. The Text format is
+	//   yours, but the test checks that it includes severity, namespace/name,
+	//   reason, count, and age — so don't drop any of those. Age comes from
+	//   now - EventAt(e), which is why `now` is injected (so a frozen clock
+	//   makes the assertion deterministic).
 	return Alert{}
 }
 
@@ -56,9 +56,11 @@ func FormatSlackMessage(e *corev1.Event, now time.Time) Alert {
 //
 // Pick them in that priority order; whichever is non-zero wins.
 func EventAt(e *corev1.Event) time.Time {
-	// TODO: if !e.EventTime.IsZero() { return e.EventTime.Time }.
-	// TODO: if !e.LastTimestamp.IsZero() { return e.LastTimestamp.Time }.
-	// TODO: return e.FirstTimestamp.Time.
+	// TODO: pick the first non-zero of EventTime / LastTimestamp / FirstTimestamp.
+	//   The priority order matters — newer kubelets populate EventTime; legacy
+	//   sources only set Last/First. Skipping EventTime would lose seconds on
+	//   modern clusters; falling through to FirstTimestamp is the worst-case
+	//   sane default.
 	return time.Time{}
 }
 
@@ -69,7 +71,8 @@ func EventAt(e *corev1.Event) time.Time {
 //
 // Tests pin this format — keep it stable.
 func DedupKey(e *corev1.Event) string {
-	// TODO: return the suggested string.
+	// TODO: build the key from InvolvedObject's namespace / kind / name plus
+	//   the reason. Format pinned by the test — keep it stable across changes.
 	return ""
 }
 

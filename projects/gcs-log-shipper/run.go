@@ -25,30 +25,19 @@ import (
 //
 // keyPrefix is prepended to each Batch.KeySuffix to form the final object key.
 func Run(ctx context.Context, tailers []*Tailer, batcher *Batcher, uploader Uploader, keyPrefix string, errOut io.Writer) error {
-	// TODO: linesCh := make(chan Line, 1024) (or some sensible buffer).
-	// TODO: start one goroutine per Tailer; collect their errors via a sync.WaitGroup or errgroup.Group.
-	// TODO: launch a goroutine that closes(linesCh) once every tailer goroutine has returned. (so the batcher loop drains on shutdown).
-	// TODO: in the main goroutine (or another), run the batcher loop:
-	// TODO:   ticker := time.NewTicker(batcher.MaxAge) (clamp to a sensible min like 100ms).
-	// TODO:   defer ticker.Stop().
-	// TODO:   loop {
-	// TODO:     select {
-	// TODO:       case line, ok := <-linesCh:
-	// TODO:         if !ok { /* tailers done */ goto finalFlush }
-	// TODO:         if batch, full := batcher.Add(line.Body); full {
-	// TODO:             upload(ctx, uploader, keyPrefix, batch, errOut)
-	// TODO:         }
-	// TODO:       case <-ticker.C:
-	// TODO:         if batch, ok := batcher.MaybeFlushByAge(); ok {
-	// TODO:             upload(ctx, uploader, keyPrefix, batch, errOut)
-	// TODO:         }
-	// TODO:       case <-ctx.Done():
-	// TODO:         goto finalFlush
-	// TODO:     }
-	// TODO:   }
-	// TODO: finalFlush: if batch, ok := batcher.Flush(); ok { upload(...) }
-	// TODO: wait for tailer goroutines; return any aggregated error.
-	_ = fmt.Sprintf // keep fmt live for when you add error wrapping
+	// TODO: wire the topology described in the doc comment above. Things
+	//   to get right (the test file pins each):
+	//
+	//   - linesCh as a buffered channel so a slow batcher doesn't block tails.
+	//   - One goroutine per Tailer; close linesCh only after all of them
+	//     have returned (a WaitGroup + closer goroutine is the usual shape).
+	//   - The batcher loop selects over: incoming lines, an age-based ticker,
+	//     and ctx.Done. Three exit signals, one finalFlush. Don't drop the
+	//     final flush — the test asserts no buffered lines are lost on
+	//     shutdown.
+	//   - Uploader errors are logged to errOut, not returned — see the
+	//     contract above.
+	_ = fmt.Sprintf
 	return errors.New("Run not implemented")
 }
 
@@ -56,6 +45,7 @@ func Run(ctx context.Context, tailers []*Tailer, batcher *Batcher, uploader Uplo
 // Errors are written to errOut; they do not propagate (so a single bad
 // upload doesn't kill the whole shipper).
 func upload(ctx context.Context, u Uploader, keyPrefix string, b Batch, errOut io.Writer) {
-	// TODO: key := keyPrefix + b.KeySuffix (or path.Join, if you want).
-	// TODO: if err := u.Put(ctx, key, b.Body); err != nil { fmt.Fprintln(errOut, "upload:", err) }.
+	// TODO: build the object key from keyPrefix + b.KeySuffix and call u.Put.
+	//   On error, log to errOut; never return — see the no-propagation
+	//   contract above.
 }

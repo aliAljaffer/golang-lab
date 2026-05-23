@@ -48,17 +48,12 @@ type HTTPHealthChecker struct {
 //                                    "health probe" (so the caller can log it).
 //   - ctx cancelled mid-Sleep     -> Sleep returns ctx.Err(); Probe propagates.
 func (h *HTTPHealthChecker) Probe(ctx context.Context, url string) error {
-	// TODO: client := h.Client (or http.DefaultClient if nil).
-	// TODO: for {
-	// TODO:     if err := ctx.Err(); err != nil { return err }.
-	// TODO:     req, _ := http.NewRequestWithContext(ctx, http.MethodGet, url, nil).
-	// TODO:     resp, err := client.Do(req).
-	// TODO:     if err == nil {
-	// TODO:         _ = resp.Body.Close().
-	// TODO:         if resp.StatusCode >= 200 && resp.StatusCode < 300 { return nil }.
-	// TODO:     }
-	// TODO:     // Sleep before retrying. Sleep is ctx-aware; surfaces ctx.Err() if cancelled.
-	// TODO:     if err := h.Sleep(ctx, h.Interval); err != nil { return err }.
-	// TODO: }
+	// TODO: implement the poll loop. The contract above is the spec; the
+	//   tests pin each branch. Two non-obvious bits:
+	//     - any non-2xx (including transport errors) means "keep polling",
+	//       not "fail" — the container might just not be ready yet.
+	//     - h.Sleep is ctx-aware; if it returns an error, propagate it
+	//       instead of looping again. That's what makes ctx-cancel-mid-sleep
+	//       wake up promptly.
 	return errors.New("HTTPHealthChecker.Probe not implemented")
 }

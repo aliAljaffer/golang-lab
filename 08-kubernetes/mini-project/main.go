@@ -57,7 +57,8 @@ type StdoutSink struct {
 
 // Send writes a JSON line. Concurrency-safe if Out is.
 func (s *StdoutSink) Send(_ context.Context, alert Alert) error {
-	// TODO: marshal alert to JSON, write to s.Out followed by a newline.
+	// TODO: emit one JSON line per call. ctx is ignored intentionally —
+	//   writes to s.Out shouldn't be cancellable.
 	return errors.New("StdoutSink.Send not implemented")
 }
 
@@ -70,8 +71,9 @@ type WebhookSink struct {
 
 // Send posts a single alert. Non-2xx is an error. Network errors propagate.
 func (s *WebhookSink) Send(ctx context.Context, alert Alert) error {
-	// TODO: marshal alert; POST application/json to s.URL using ctx.
-	// TODO: any 2xx is success; otherwise return a fmt.Errorf with the status code.
+	// TODO: POST the JSON-marshalled alert to s.URL via ctx-aware request.
+	//   Don't forget Content-Type. Non-2xx is an error containing the status
+	//   code so callers can tell timeouts apart from a misconfigured webhook.
 	return errors.New("WebhookSink.Send not implemented")
 }
 
@@ -82,9 +84,10 @@ func (s *WebhookSink) Send(ctx context.Context, alert Alert) error {
 // CrashLoop back-off timer kicks in. It does NOT appear on Pending pods
 // that haven't started yet — those are "ContainerCreating" or "PodInitializing".
 func IsCrashLooping(pod *corev1.Pod) bool {
-	// TODO: iterate pod.Status.ContainerStatuses; for each c, check
-	// TODO: c.State.Waiting != nil && c.State.Waiting.Reason == "CrashLoopBackOff".
-	// TODO: also consider pod.Status.InitContainerStatuses (init containers can crashloop too).
+	// TODO: scan the pod's container statuses for a Waiting state with
+	//   Reason == "CrashLoopBackOff". Don't skip InitContainerStatuses —
+	//   init containers crashloop too, and missing them means quiet failures
+	//   on pods that never make it past init.
 	_ = corev1.PodStatus{}
 	return false
 }
@@ -92,7 +95,8 @@ func IsCrashLooping(pod *corev1.Pod) bool {
 // CrashLoopingContainer returns the first crashlooping container name, or "".
 // Useful for the Alert's Container field.
 func CrashLoopingContainer(pod *corev1.Pod) string {
-	// TODO: same iteration as IsCrashLooping but return the container name.
+	// TODO: same scan as IsCrashLooping, but return the container name on
+	//   first hit. Empty string for "none" — used directly in the Alert.
 	return ""
 }
 
@@ -117,8 +121,9 @@ func NewDeduper(cooldown time.Duration) *Deduper {
 // Side effect: records the alert time on a true return so the NEXT call within
 // the cooldown returns false.
 func (d *Deduper) ShouldAlert(key string) bool {
-	// TODO: lock d.mu. compute now := d.Now(). if last, ok := d.lastSent[key]; ok && now.Sub(last) < d.cooldown { return false }.
-	// TODO: otherwise set d.lastSent[key] = now and return true.
+	// TODO: read+update lastSent under d.mu — informers fire from several
+	//   goroutines. On a true return you also have to RECORD now, otherwise
+	//   the cooldown does nothing. d.Now is the clock seam — tests use it.
 	return false
 }
 
@@ -126,12 +131,10 @@ func (d *Deduper) ShouldAlert(key string) bool {
 // Send errors are logged to errOut but do not stop processing.
 func newPodHandler(d *Deduper, sink Sink, errOut io.Writer) cache.ResourceEventHandler {
 	check := func(obj interface{}) {
-		// TODO: type-assert obj to *corev1.Pod (handle the cache.DeletedFinalStateUnknown case if you want).
-		// TODO: if !IsCrashLooping(pod) { return }.
-		// TODO: key := pod.Namespace + "/" + pod.Name.
-		// TODO: if !d.ShouldAlert(key) { return }.
-		// TODO: build Alert; call sink.Send(context.Background(), alert).
-		// TODO: on error, fmt.Fprintln(errOut, "sink:", err).
+		// TODO: detect -> dedup -> send. The informer hands you interface{},
+		//   so type-assert to *corev1.Pod first (return on unexpected types).
+		//   Sink errors go to errOut; don't return them, or the informer will
+		//   drop the item.
 	}
 	return cache.ResourceEventHandlerFuncs{
 		AddFunc:    check,
@@ -142,13 +145,11 @@ func newPodHandler(d *Deduper, sink Sink, errOut io.Writer) cache.ResourceEventH
 // Run starts the informer factory and blocks until ctx is cancelled. ns="" watches
 // every namespace; otherwise restricts to ns. Returns nil on clean shutdown.
 func Run(ctx context.Context, clientset kubernetes.Interface, ns string, d *Deduper, sink Sink, errOut io.Writer) error {
-	// TODO: factory := informers.NewSharedInformerFactoryWithOptions(clientset, 30*time.Second, informers.WithNamespace(ns))
-	// TODO: podInformer := factory.Core().V1().Pods().Informer()
-	// TODO: _, err := podInformer.AddEventHandler(newPodHandler(d, sink, errOut))
-	// TODO: if err != nil { return err }
-	// TODO: factory.Start(ctx.Done())
-	// TODO: if !cache.WaitForCacheSync(ctx.Done(), podInformer.HasSynced) { return errors.New("cache sync timed out") }
-	// TODO: <-ctx.Done(); return nil
+	// TODO: build a SharedInformerFactory (use the WithNamespace option only
+	//   when ns is non-empty), attach newPodHandler to the Pods informer,
+	//   Start the factory, and block on ctx.Done(). WaitForCacheSync is the
+	//   load-bearing call — skipping it makes every existing crashlooping
+	//   pod fire as a "new" alert on every restart.
 	_ = informers.NewSharedInformerFactory
 	_ = cache.WaitForCacheSync
 	return errors.New("Run not implemented")

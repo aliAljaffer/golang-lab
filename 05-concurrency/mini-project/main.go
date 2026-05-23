@@ -46,13 +46,14 @@ type Result struct {
 // (even for 4xx / 5xx — those are not transport failures).
 func Check(ctx context.Context, client *http.Client, url string) Result {
 	start := time.Now()
-	// TODO: req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
-	// TODO: if err != nil { return Result{URL: url, Duration: time.Since(start), Err: err} }
-	// TODO: resp, err := client.Do(req)
-	// TODO: if err != nil { return Result{URL: url, Duration: time.Since(start), Err: err} }
-	// TODO: defer resp.Body.Close()
-	// TODO: io.Copy(io.Discard, resp.Body) // drain so the connection can be reused
-	// TODO: return Result{URL: url, Status: resp.StatusCode, Duration: time.Since(start)}
+	// TODO: do a GET that honours ctx (http.NewRequestWithContext + client.Do).
+	//   On a transport failure return a Result with Status=0 and Err set;
+	//   on success return Status=resp.StatusCode with no Err. Either way fill
+	//   in Duration before you return.
+	//
+	//   Don't forget to close resp.Body, and drain it (io.Copy to io.Discard)
+	//   so the underlying connection can go back into the keep-alive pool —
+	//   skipping the drain is a classic "works in tests, leaks in prod" bug.
 
 	_ = start
 	_ = http.NewRequestWithContext
@@ -69,23 +70,15 @@ func Run(ctx context.Context, client *http.Client, urls []string, concurrency in
 	if concurrency <= 0 {
 		concurrency = 1
 	}
-	// TODO: sem := make(chan struct{}, concurrency)  // semaphore: at most `concurrency` slots
-	// TODO: var wg sync.WaitGroup
-	// TODO: for _, u := range urls {
-	// TODO:     wg.Add(1)
-	// TODO:     go func(url string) {
-	// TODO:         defer wg.Done()
-	// TODO:         select {
-	// TODO:         case sem <- struct{}{}:                // acquire
-	// TODO:         case <-ctx.Done():
-	// TODO:             out <- Result{URL: url, Err: ctx.Err()}
-	// TODO:             return
-	// TODO:         }
-	// TODO:         defer func() { <-sem }()              // release
-	// TODO:         out <- Check(ctx, client, url)
-	// TODO:     }(u)
-	// TODO: }
-	// TODO: go func() { wg.Wait(); close(out) }()
+	// TODO: fan out one goroutine per URL, but cap the in-flight count.
+	//   The standard trick is a buffered "semaphore" channel of size
+	//   `concurrency`: acquire by sending, release by receiving. Acquire
+	//   has to lose to ctx.Done() so callers can bail mid-queue without
+	//   starting work that will only be cancelled.
+	//
+	// TODO: close `out` exactly once, AFTER every spawned goroutine has
+	//   reported its Result — sync.WaitGroup + a closer goroutine is the
+	//   usual shape. Closing too early panics on the next send.
 
 	_ = sync.WaitGroup{}
 	close(out)

@@ -21,12 +21,11 @@ import (
 func BasicAuth(username, password string) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			// TODO: u, p, ok := r.BasicAuth()
-			// TODO: if !ok { -> unauthorized(w); return }
-			// TODO: userOK := subtle.ConstantTimeCompare([]byte(u), []byte(username)) == 1
-			//       passOK := subtle.ConstantTimeCompare([]byte(p), []byte(password)) == 1
-			// TODO: if !(userOK && passOK) { unauthorized(w); return }
-			// TODO: next.ServeHTTP(w, r)
+			// TODO: pull credentials with r.BasicAuth, then compare each
+			//   field with subtle.ConstantTimeCompare. Critical: compute
+			//   BOTH comparisons (don't short-circuit with &&) so the timing
+			//   doesn't leak which field was wrong. AND the two results
+			//   together at the end.
 
 			_ = subtle.ConstantTimeCompare
 			unauthorized(w)

@@ -40,13 +40,12 @@ type HTTPDownloader struct {
 //	Response: 2xx -> return resp.Body (caller closes)
 //	          non-2xx -> error containing the status
 func (d *HTTPDownloader) Download(ctx context.Context, url string) (io.ReadCloser, error) {
-	// TODO: build a request with method GET, ctx, url.
-	// TODO: set "Accept: application/octet-stream".
-	// TODO: if d.Token != "" { req.Header.Set("Authorization", "Bearer " + d.Token) }.
-	// TODO: pick the client. If d.Client == nil, build a fresh one with a
-	// TODO: CheckRedirect that strips Authorization on cross-host redirects.
-	// TODO: do the request; on non-2xx, drain+close body and return an error.
-	// TODO: on success, return resp.Body, nil (caller closes).
+	// TODO: do the GET per the wire contract above. The load-bearing detail
+	//   is that resp.Body is RETURNED to the caller (you don't close it on
+	//   success). Non-2xx is your responsibility to drain + close before
+	//   returning the error — otherwise the connection won't go back to the
+	//   pool. If d.Client is nil, you'll need to wire up stripAuthOnHostChange
+	//   yourself so the GitHub token doesn't leak to S3.
 	return nil, errors.New("HTTPDownloader.Download not implemented")
 }
 
@@ -56,10 +55,8 @@ func (d *HTTPDownloader) Download(ctx context.Context, url string) (io.ReadClose
 // Signature matches *http.Client.CheckRedirect: returning a non-nil error
 // stops the redirect chain; returning nil follows it.
 func stripAuthOnHostChange(req *http.Request, via []*http.Request) error {
-	// TODO: if len(via) == 0 { return nil }.
-	// TODO: prev := via[len(via)-1].
-	// TODO: if req.URL.Host != prev.URL.Host { req.Header.Del("Authorization") }.
-	// TODO: if len(via) >= 10 { return errors.New("too many redirects") }.
-	// TODO: return nil.
+	// TODO: delete the Authorization header from req when the host differs
+	//   from the previous hop in `via`. Also bail out if the chain gets
+	//   silly long — net/http's default is 10, mirror that.
 	return nil
 }

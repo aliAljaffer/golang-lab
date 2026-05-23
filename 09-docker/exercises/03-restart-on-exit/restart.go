@@ -52,9 +52,9 @@ type DockerAPI interface {
 // event (containers stopped by a user count as exited). The daemon includes
 // `exitCode` in the actor attributes; "0" means clean shutdown.
 func ShouldRestart(msg events.Message) bool {
-	// TODO: check msg.Type, msg.Action.
-	// TODO: read exit code from msg.Actor.Attributes["exitCode"]; if "0" or empty, return false.
-	// TODO: return true otherwise.
+	// TODO: implement the truth table from the doc above. The trap is that
+	//   "die" alone isn't enough — `docker stop` also fires die, with exitCode
+	//   "0". The exitCode attribute is the discriminator.
 	return false
 }
 
@@ -64,19 +64,15 @@ func ShouldRestart(msg events.Message) bool {
 // Returns nil on clean ctx cancellation; the first transport error otherwise.
 // ContainerStart errors are NOT fatal — they're logged elsewhere and Run continues.
 func Run(ctx context.Context, api DockerAPI) error {
-	// TODO: f := filters.NewArgs(filters.Arg("type", "container"), filters.Arg("event", "die"))
-	// TODO: msgCh, errCh := api.Events(ctx, events.ListOptions{Filters: f})
-	// TODO: for {
-	// TODO:     select {
-	// TODO:     case <-ctx.Done(): return nil
-	// TODO:     case err := <-errCh:
-	// TODO:         if err != nil && ctx.Err() == nil { return err }
-	// TODO:         return nil
-	// TODO:     case msg := <-msgCh:
-	// TODO:         if !ShouldRestart(msg) { continue }
-	// TODO:         _ = api.ContainerStart(ctx, msg.Actor.ID, container.StartOptions{})  // ignore start errors; continue
-	// TODO:     }
-	// TODO: }
+	// TODO: subscribe to the daemon's event stream and dispatch on every
+	//   incoming message. Decisions the tests pin:
+	//     - filter server-side to type=container, event=die — saves work
+	//       on the client.
+	//     - errCh after ctx.Done() is expected (transport closes); only
+	//       treat it as an error when ctx is still alive.
+	//     - ContainerStart errors are NON-fatal — log if you want, but the
+	//       loop must keep running. A single bad start shouldn't kill the
+	//       watcher.
 	_ = errors.New
 	return errors.New("Run not implemented")
 }

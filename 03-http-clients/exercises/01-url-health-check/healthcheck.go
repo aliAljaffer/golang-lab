@@ -25,12 +25,11 @@ type Result struct {
 //
 // Transport errors do not abort the run — each URL gets its own Result.
 func CheckAll(client *http.Client, urls []string) []Result {
-	// TODO: loop over urls. For each:
-	//         started := time.Now()
-	//         resp, err := client.Get(url)
-	//         elapsed := time.Since(started)
-	//         build Result. If err != nil, Status=0, OK=false, Err=err.
-	//         else Status=resp.StatusCode, OK=200<=Status<300, resp.Body.Close().
-	// TODO: return results in the same order as `urls`.
+	// TODO: GET each url, time it, build a Result. The contract notes pin
+	//   two things: a transport error is a Result (not a panic / early
+	//   return), and the order of results matches the input. If you go
+	//   concurrent for speed, you need to reorder before returning — index
+	//   into a pre-sized slice is the simplest way. Don't forget to close
+	//   each response body, even on the non-OK path.
 	return nil
 }

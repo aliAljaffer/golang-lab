@@ -23,16 +23,12 @@ import (
 // Returns immediately; the actual sends happen on a goroutine.
 func Source(ctx context.Context, nums []int) <-chan int {
 	out := make(chan int)
-	// TODO: go func() {
-	// TODO:     defer close(out)
-	// TODO:     for _, n := range nums {
-	// TODO:         select {
-	// TODO:         case out <- n:
-	// TODO:         case <-ctx.Done():
-	// TODO:             return
-	// TODO:         }
-	// TODO:     }
-	// TODO: }()
+	// TODO: do the work on a goroutine, then return `out` synchronously.
+	//   Two things every send-side stage owes its caller:
+	//     1. close(out) exactly once, when there's nothing more to send.
+	//     2. honour ctx — if the consumer disappears, don't block forever
+	//        trying to send into a channel no one is reading.
+	//   `select` with a ctx.Done() case on each send is the usual shape.
 
 	close(out)
 	_ = ctx
@@ -43,22 +39,11 @@ func Source(ctx context.Context, nums []int) <-chan int {
 // Closes its output when `in` is closed or ctx is cancelled.
 func Square(ctx context.Context, in <-chan int) <-chan int {
 	out := make(chan int)
-	// TODO: go func() {
-	// TODO:     defer close(out)
-	// TODO:     for {
-	// TODO:         select {
-	// TODO:         case n, ok := <-in:
-	// TODO:             if !ok { return }
-	// TODO:             select {
-	// TODO:             case out <- n * n:
-	// TODO:             case <-ctx.Done():
-	// TODO:                 return
-	// TODO:             }
-	// TODO:         case <-ctx.Done():
-	// TODO:             return
-	// TODO:         }
-	// TODO:     }
-	// TODO: }()
+	// TODO: middle stage — needs both ctx-cancel awareness AND end-of-input
+	//   detection. The two-value receive form `v, ok := <-in` is how you
+	//   distinguish "closed and drained" from a live value; that's the
+	//   signal to close `out` and return. Sends must also respect ctx,
+	//   otherwise a vanished consumer will deadlock you.
 
 	close(out)
 	_ = ctx
@@ -69,17 +54,11 @@ func Square(ctx context.Context, in <-chan int) <-chan int {
 // or ctx is cancelled (returns the partial sum and ctx.Err()).
 func Sum(ctx context.Context, in <-chan int) (int, error) {
 	var total int
-	// TODO: for {
-	// TODO:     select {
-	// TODO:     case v, ok := <-in:
-	// TODO:         if !ok {
-	// TODO:             return total, nil
-	// TODO:         }
-	// TODO:         total += v
-	// TODO:     case <-ctx.Done():
-	// TODO:         return total, ctx.Err()
-	// TODO:     }
-	// TODO: }
+	// TODO: terminal stage — accumulate until one of two things happens:
+	//   the input is closed-and-drained (return total, nil), or ctx is
+	//   cancelled (return whatever you've accumulated so far + ctx.Err()).
+	//   The ctx-cancel test pins both: partial sum is preserved AND error
+	//   is errors.Is(context.Canceled).
 
 	_ = ctx
 	_ = in

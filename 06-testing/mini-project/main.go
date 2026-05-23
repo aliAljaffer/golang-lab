@@ -76,11 +76,13 @@ type Stats struct {
 // Whitespace around the brackets is tolerated. The body may be empty.
 // Returns an error for unknown levels or malformed structure.
 func Parse(line string) (Entry, error) {
-	// TODO: trim leading whitespace
-	// TODO: require a leading '[' and a matching ']'
-	// TODO: extract the bracketed level; reject if not in KnownLevels
-	// TODO: the body is everything after ']' with a single leading space stripped
-	// TODO: return Entry{Level: lvl, Body: body}, nil
+	// TODO: implement the "[LEVEL] body" parser. Decisions the tests pin down:
+	//   - whitespace before the '[' is tolerated, so do you trim or use index
+	//     arithmetic? Either works as long as the table cases pass.
+	//   - the level inside the brackets must be one of KnownLevels; anything
+	//     else is an error (the fuzz invariant relies on this).
+	//   - exactly one separator space between ']' and the body is consumed —
+	//     not all whitespace, just one.
 
 	_ = strings.TrimSpace
 	return Entry{}, errors.New("Parse: not implemented")
@@ -89,10 +91,9 @@ func Parse(line string) (Entry, error) {
 // FormatRate renders an events-per-second figure with one decimal place.
 // dur == 0 should return "0.0 events/s" (avoid div-by-zero).
 func FormatRate(events int, dur time.Duration) string {
-	// TODO: if dur <= 0, return "0.0 events/s"
-	// TODO: compute rate := float64(events) / dur.Seconds()
-	// TODO: return fmt.Sprintf("%.1f events/s", rate)
-
+	// TODO: events-per-second formatted to one decimal. The only branch worth
+	//   thinking about is the zero-duration case — the test pins the exact
+	//   string for that path.
 	return ""
 }
 
@@ -110,18 +111,18 @@ type Aggregator struct {
 // Add records one entry. The first Add sets the start time; every Add updates
 // the end time. Snapshot then reports `end - start` as Duration.
 func (a *Aggregator) Add(e Entry) {
-	// TODO: if a.counts == nil, initialize it
-	// TODO: if a.start is zero, set a.start = time.Now()
-	// TODO: a.counts[e.Level]++; a.total++; a.end = time.Now()
+	// TODO: bump the per-level count, the total, and the end timestamp. Two
+	//   things easy to forget on a zero-value receiver: the map is nil until
+	//   you make it, and a.start is the zero Time until you set it on the
+	//   first call (so Duration measures first-Add to last-Add, not zero).
 }
 
 // Snapshot returns the current aggregated state. Safe to call multiple times.
 func (a *Aggregator) Snapshot() Stats {
-	// TODO: return Stats{
-	// TODO:   ByLevel:  copyMap(a.counts),
-	// TODO:   Total:    a.total,
-	// TODO:   Duration: a.end.Sub(a.start),
-	// TODO: }
+	// TODO: assemble the Stats from the fields Add has been writing. Duration
+	//   is end-start. Think about whether the map you hand out is the same one
+	//   Add keeps mutating — does that matter for a caller that holds onto
+	//   the Stats?
 	return Stats{}
 }
 
@@ -137,7 +138,9 @@ type Source interface {
 type FileSource struct{ Path string }
 
 func (f FileSource) Fetch(ctx context.Context) (io.ReadCloser, error) {
-	// TODO: return os.Open(f.Path)
+	// TODO: hand back something the caller can read AND close. os.File
+	//   already satisfies io.ReadCloser. ctx is unused for the file path —
+	//   that asymmetry with HTTPSource is fine.
 	_ = ctx
 	return nil, errors.New("FileSource.Fetch: not implemented")
 }
@@ -149,12 +152,10 @@ type HTTPSource struct {
 }
 
 func (h HTTPSource) Fetch(ctx context.Context) (io.ReadCloser, error) {
-	// TODO: req, err := http.NewRequestWithContext(ctx, "GET", h.URL, nil)
-	// TODO: if err != nil { return nil, err }
-	// TODO: resp, err := h.Client.Do(req)
-	// TODO: if err != nil { return nil, err }
-	// TODO: if resp.StatusCode != 200 { resp.Body.Close(); return nil, fmt.Errorf("status %d", resp.StatusCode) }
-	// TODO: return resp.Body, nil
+	// TODO: GET h.URL via h.Client, honouring ctx. The httptest test pins
+	//   non-200 as an error (and the body must be closed in that case so
+	//   you don't leak the connection). On 200, hand resp.Body back to the
+	//   caller — they own closing it.
 	_ = ctx
 	return nil, errors.New("HTTPSource.Fetch: not implemented")
 }
@@ -164,14 +165,12 @@ func (h HTTPSource) Fetch(ctx context.Context) (io.ReadCloser, error) {
 // Summarize pulls bytes from src, parses each line, and returns aggregated Stats.
 // Lines that fail to Parse are skipped (counted separately would be a stretch).
 func Summarize(ctx context.Context, src Source) (Stats, error) {
-	// TODO: rc, err := src.Fetch(ctx); if err != nil { return Stats{}, err }
-	// TODO: defer rc.Close()
-	// TODO: var agg Aggregator
-	// TODO: sc := bufio.NewScanner(rc)
-	// TODO: for sc.Scan() {
-	// TODO:     if e, err := Parse(sc.Text()); err == nil { agg.Add(e) }
-	// TODO: }
-	// TODO: return agg.Snapshot(), sc.Err()
+	// TODO: fetch, scan line by line, feed every successfully Parse'd line
+	//   into an Aggregator, return the Snapshot. Decisions:
+	//     - Parse errors are silently skipped (not propagated) — that's the
+	//       documented behaviour above.
+	//     - Scanner errors (sc.Err) ARE propagated; they mean the source
+	//       died mid-stream, not just that one line was malformed.
 
 	_ = bufio.NewScanner
 	return Stats{}, errors.New("Summarize: not implemented")

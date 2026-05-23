@@ -62,42 +62,20 @@ func Run(
 	health HealthChecker,
 	opts Opts,
 ) (Report, error) {
-	// TODO: var report Report.
+	// TODO: walk the five-stage pipeline in the doc above. The test file
+	//   verifies each branch — read it before you start writing.
 	//
-	// TODO: url, err := fetcher.Fetch(ctx, opts.Owner, opts.Repo, opts.Tag).
-	// TODO: if err != nil { return report, fmt.Errorf("fetch: %w", err) }.
-	// TODO: report.ArtifactURL = url.
-	//
-	// TODO: if opts.DryRun { return report, nil }.
-	//
-	// TODO: body, err := downloader.Download(ctx, url).
-	// TODO: if err != nil { return report, fmt.Errorf("download: %w", err) }.
-	// TODO: defer body.Close().
-	// TODO: tar, err := io.ReadAll(body).
-	// TODO: if err != nil { return report, fmt.Errorf("read download body: %w", err) }.
-	//
-	// TODO: imageTag := DockerSafeTag(opts.Owner, opts.Repo, opts.Tag).
-	// TODO: imageID, err := builder.Build(ctx, tar, imageTag).
-	// TODO: if err != nil { return report, fmt.Errorf("build: %w", err) }.
-	// TODO: report.ImageID = imageID.
-	//
-	// TODO: ctrID, err := runner.Run(ctx, RunOpts{
-	// TODO:     ImageID: imageID, HostPort: opts.HostPort, ContainerPort: opts.ContainerPort,
-	// TODO:     Env: opts.Env, RemoveOnExit: !opts.KeepContainer,
-	// TODO: }).
-	// TODO: if err != nil { return report, fmt.Errorf("run: %w", err) }.
-	// TODO: report.ContainerID = ctrID.
-	//
-	// TODO: probeURL := fmt.Sprintf("http://localhost:%d%s", opts.HostPort, opts.HealthPath).
-	// TODO: if err := health.Probe(ctx, probeURL); err != nil {
-	// TODO:     if !opts.KeepContainer {
-	// TODO:         if rmErr := runner.Remove(ctx, ctrID); rmErr == nil { report.Removed = true }
-	// TODO:     }
-	// TODO:     return report, fmt.Errorf("health: %w", err).
-	// TODO: }
-	//
-	// TODO: report.Healthy = true.
-	// TODO: return report, nil.
-	_ = fmt.Sprintf // keep fmt live for when you add the wrapping
+	//   Contract details that the tests pin:
+	//     - the Report is returned on error too; populate it as you go so a
+	//       caller can see how far the pipeline got. ImageID set + Healthy=false
+	//       is what "build OK, container started, health failed" looks like.
+	//     - errors at each stage should be wrapped with a stage tag
+	//       (`fmt.Errorf("fetch: %w", err)`, etc.) so the test can assert which
+	//       stage failed via errors.Is/As without string-matching.
+	//     - DryRun short-circuits AFTER Fetch — a typo'd tag still fails fast.
+	//     - on a health failure with KeepContainer=false, best-effort Remove the
+	//       container and flip Report.Removed when it works. The health error is
+	//       still what gets returned — Remove failing doesn't replace it.
+	_ = fmt.Sprintf
 	return Report{}, errors.New("Run not implemented")
 }

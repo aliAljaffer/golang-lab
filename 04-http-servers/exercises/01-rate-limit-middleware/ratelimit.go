@@ -45,12 +45,11 @@ func New(limit int, window time.Duration) *Limiter {
 // Allow records a request for `key` and returns true iff it's within the limit.
 // Concurrency-safe.
 func (l *Limiter) Allow(key string) bool {
-	// TODO: now := l.now()
-	// TODO: l.mu.Lock(); defer l.mu.Unlock()
-	// TODO: b := l.buckets[key]; if b == nil { b = &bucket{}; l.buckets[key] = b }
-	// TODO: if now.Sub(b.windowStart) >= l.Window { b.count = 0; b.windowStart = now }
-	// TODO: if b.count >= l.Limit { return false }
-	// TODO: b.count++; return true
+	// TODO: fixed-window check + record. Under l.mu (concurrent requests),
+	//   look up the bucket for `key`, reset its counter when the window has
+	//   elapsed, then admit-or-reject. The reset has to use the same `now`
+	//   value you used to make the admit decision — otherwise two calls
+	//   straddling a window boundary can race.
 	return false
 }
 
@@ -67,8 +66,9 @@ func (l *Limiter) now() time.Time {
 func Middleware(l *Limiter) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			// TODO: if !l.Allow(r.RemoteAddr) { http.Error(w, "rate limit exceeded", 429); return }
-			// TODO: next.ServeHTTP(w, r)
+			// TODO: key by r.RemoteAddr (port included is fine for this
+			//   exercise), reject with 429 when Allow returns false, pass
+			//   through otherwise.
 			next.ServeHTTP(w, r)
 		})
 	}

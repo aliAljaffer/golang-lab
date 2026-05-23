@@ -28,7 +28,9 @@ const requestIDKey ctxKey = 0
 
 // RequestIDFromContext returns the request ID stored in ctx, or "" if none.
 func RequestIDFromContext(ctx context.Context) string {
-	// TODO: v, _ := ctx.Value(requestIDKey).(string); return v
+	// TODO: pull the value at requestIDKey back out as a string. ctx.Value
+	//   returns interface{}; the type assertion's ok-form is how you keep
+	//   "missing" and "wrong type" from panicking.
 	return ""
 }
 
@@ -53,14 +55,16 @@ func (s *statusRecorder) WriteHeader(code int) {
 func WithRequestID(idGen func() string, logger *log.Logger) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			// TODO: id := r.Header.Get("X-Request-ID"); if id == "" { id = idGen() }
-			// TODO: w.Header().Set("X-Request-ID", id)
-			// TODO: ctx := context.WithValue(r.Context(), requestIDKey, id)
-			// TODO: sr := &statusRecorder{ResponseWriter: w, status: 200}
-			// TODO: started := time.Now()
-			// TODO: if logger != nil { logger.Printf("start id=%s method=%s path=%s", id, r.Method, r.URL.Path) }
-			// TODO: next.ServeHTTP(sr, r.WithContext(ctx))
-			// TODO: if logger != nil { logger.Printf("end   id=%s status=%d duration=%s", id, sr.status, time.Since(started)) }
+			// TODO: thread an ID through this request:
+			//   - reuse X-Request-ID if the caller supplied one (lets a load
+			//     balancer or upstream tracer keep continuity); otherwise mint
+			//     via idGen.
+			//   - echo it on the response header, stash it in the context so
+			//     inner handlers can pull it back with RequestIDFromContext.
+			//   - wrap w in statusRecorder so the "end" log line knows what
+			//     status code went out — http.ResponseWriter doesn't tell you.
+			//   - logger == nil is a valid case (silent middleware). Don't
+			//     branch around that with a panic guard; just nil-check.
 
 			_ = time.Now
 			next.ServeHTTP(w, r)

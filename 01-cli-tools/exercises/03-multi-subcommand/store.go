@@ -27,7 +27,9 @@ type Pod struct {
 // Store holds resources in memory. It is the seam between business logic and CLI plumbing.
 // In a real tool, this would be backed by an API client.
 type Store struct {
-	// TODO: pick a field layout. A map[string]Pod is the obvious choice.
+	// TODO: pick a field layout. The tests do per-name operations (Create
+	//   must reject duplicates, Get/Delete address one pod by name) — pick
+	//   something whose lookup-by-name shape matches that.
 }
 
 // NewStore returns an empty, ready-to-use Store.

@@ -41,18 +41,11 @@ type DB interface {
 
 // Query runs sql against db, instrumented with an OTel span.
 func Query(ctx context.Context, tracer trace.Tracer, db DB, sql string) (int, error) {
-	// TODO: ctx, span := tracer.Start(ctx, "db.query")
-	// TODO: defer span.End()
-	// TODO: span.SetAttributes(attribute.String("db.statement", sql))
-	// TODO:
-	// TODO: rows, err := db.Query(ctx, sql)
-	// TODO: if err != nil {
-	// TODO:     span.RecordError(err)
-	// TODO:     span.SetStatus(codes.Error, err.Error())
-	// TODO:     return 0, err
-	// TODO: }
-	// TODO: span.SetAttributes(attribute.Int("db.rows_affected", rows))
-	// TODO: return rows, nil
+	// TODO: start a "db.query" span, set db.statement, call db.Query, then
+	//   either set db.rows_affected (success) or RecordError + SetStatus
+	//   codes.Error (failure). The error-recording path is the load-bearing
+	//   bit — without SetStatus(codes.Error), the span shows up green in
+	//   Jaeger / Tempo / Honeycomb and you can't tell anything broke.
 
 	_ = ctx
 	_ = tracer

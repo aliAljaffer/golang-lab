@@ -33,9 +33,10 @@ func NewDeduper(cooldown time.Duration) *Deduper {
 // Side effect: on a true return, records the alert time so the next call
 // within the cooldown returns false.
 func (d *Deduper) ShouldAlert(key string) bool {
-	// TODO: lock d.mu (deferred unlock).
-	// TODO: now := d.Now().
-	// TODO: if last, ok := d.lastSent[key]; ok && now.Sub(last) < d.cooldown { return false }.
-	// TODO: d.lastSent[key] = now; return true.
+	// TODO: read+update lastSent under d.mu — the handler can be called from
+	//   several goroutines. On a true return, you also have to RECORD now,
+	//   so the next call within the cooldown is rejected. The test pins
+	//   both halves: "first call true, second within cooldown false,
+	//   call after cooldown true again".
 	return false
 }

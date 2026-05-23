@@ -40,7 +40,7 @@ type DockerBuilder struct {
 //   - SDK error      -> propagate it (no retry — image builds are not idempotent)
 //   - ctx.Done()     -> SDK returns ctx.Err(); propagate
 func (b *DockerBuilder) Build(ctx context.Context, contextTar []byte, tag string) (string, error) {
-	// TODO: return b.Inner.imageBuild(ctx, contextTar, tag).
+	// TODO: delegate to b.Inner. No retry — image builds aren't idempotent.
 	return "", errors.New("DockerBuilder.Build not implemented")
 }
 
@@ -65,10 +65,10 @@ func (b *DockerBuilder) Build(ctx context.Context, contextTar []byte, tag string
 //
 // Pure. Tested by TestDockerSafeTag.
 func DockerSafeTag(owner, repo, releaseTag string) string {
-	// TODO: name := strings.ToLower(owner + "/" + repo).
-	// TODO: name = strings.ReplaceAll(name, "/", "-").
-	// TODO: tag := sanitizeDockerTag(releaseTag).
-	// TODO: return name + ":" + tag.
+	// TODO: produce "<safe-name>:<safe-tag>" per the rules above. The
+	//   examples in the docstring are the spec; the test pins each. The
+	//   sanitization of the tag portion is broken out below so both halves
+	//   can be tested in isolation.
 	_ = strings.ToLower
 	return ""
 }
@@ -76,13 +76,9 @@ func DockerSafeTag(owner, repo, releaseTag string) string {
 // sanitizeDockerTag enforces the Docker tag charset on the release tag
 // portion. Helper used by DockerSafeTag; broken out so it's pinnable.
 func sanitizeDockerTag(tag string) string {
-	// TODO: tag = strings.ToLower(tag).
-	// TODO: build a []rune; for each rune:
-	// TODO:   if (r >= 'a' && r <= 'z') || (r >= '0' && r <= '9') || r == '.' || r == '_' || r == '-' -> keep
-	// TODO:   else -> '-'
-	// TODO: result := string(runes).
-	// TODO: if len(result) > 0 && (result[0] == '.' || result[0] == '-') { result = "_" + result[1:] }.
-	// TODO: return result.
+	// TODO: restrict to [a-z0-9._-] (replace anything else with '-'), then
+	//   prepend '_' if the first character ends up being '.' or '-' —
+	//   Docker rejects tags that start with either. Tests cover each case.
 	return ""
 }
 
@@ -100,11 +96,12 @@ type dockerBuildAdapter struct {
 // final image ID. The student decides whether to parse the stream live or
 // drain the body and grep — both work.
 func (a *dockerBuildAdapter) imageBuild(ctx context.Context, contextTar []byte, tag string) (string, error) {
-	// TODO: build types.ImageBuildOptions{ Tags: []string{tag}, Remove: true, Dockerfile: "Dockerfile" }.
-	// TODO: rc, err := a.Client.ImageBuild(ctx, bytes.NewReader(contextTar), opts); on error return "", err.
-	// TODO: defer rc.Body.Close().
-	// TODO: parse the newline-delimited JSON build stream; look for an event
-	// TODO: with an "aux" field whose JSON-decoded shape is {"ID": "sha256:..."}.
-	// TODO: return that ID, nil. If you never saw one, return "", errors.New("build did not emit an image ID").
+	// TODO: call a.Client.ImageBuild with the tar context, then walk the
+	//   streaming build response to extract the final image ID. The shape
+	//   to scan for is an event with an "aux" field decodable as
+	//   {"ID":"sha256:..."} — that's the last event when the build succeeds.
+	//   Decide once whether you parse the JSON stream live or buffer-then-grep;
+	//   either is fine. Missing aux event = build did not produce an image,
+	//   which is an error worth surfacing distinctly.
 	return "", errors.New("dockerBuildAdapter.imageBuild not implemented")
 }

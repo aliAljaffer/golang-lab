@@ -47,10 +47,11 @@ type Snapshot struct {
 //   - curr.CPUTotalNanos < prev → counter rolled (container restarted);
 //     return 0. Don't return a negative percentage.
 func CPUPercent(curr, prev Snapshot) float64 {
-	// TODO: compute cpuDelta = curr.CPUTotalNanos - prev.CPUTotalNanos (guard against underflow).
-	// TODO: compute systemDelta = curr.SystemCPUNanos - prev.SystemCPUNanos.
-	// TODO: if systemDelta == 0 or cpuDelta == 0, return 0.
-	// TODO: return (float64(cpuDelta) / float64(systemDelta)) * float64(curr.OnlineCPUs) * 100.0.
+	// TODO: implement the formula above. The interesting bit is the three
+	//   edge cases that should return 0: the first sample (prev counters
+	//   are zero, so cpuDelta is "the whole thing"), zero system delta
+	//   (would divide by zero), and a wrapped/restarted counter (would
+	//   underflow uint64 subtraction into a huge positive number).
 	_ = errors.New
 	return 0
 }
@@ -61,7 +62,8 @@ func CPUPercent(curr, prev Snapshot) float64 {
 // Note: a container with no memory limit is common (it inherits the host's
 // memory). Reporting "97% of unlimited" makes no sense; return 0 instead.
 func MemoryPercent(s Snapshot) float64 {
-	// TODO: if s.MemoryLimitBytes == 0, return 0.
-	// TODO: return (float64(s.MemoryUsageBytes) / float64(s.MemoryLimitBytes)) * 100.0.
+	// TODO: percentage of MemoryUsageBytes / MemoryLimitBytes — but only
+	//   when the limit is set. Containers without a cgroup limit return 0
+	//   (97% of "unlimited" is meaningless).
 	return 0
 }

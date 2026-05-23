@@ -15,11 +15,13 @@ import "os"
 //   - If the file didn't grow, return (nil, lastSize, nil).
 //   - If the file shrank (truncation / rotation), return a non-nil error.
 func ReadAppend(f *os.File, lastSize int64) ([]byte, int64, error) {
-	// TODO: stat the file to learn its current size.
-	// TODO: if size == lastSize, return (nil, lastSize, nil).
-	// TODO: if size < lastSize, return an error (rotation/truncate).
-	// TODO: f.Seek(lastSize, io.SeekStart)
-	// TODO: buf := make([]byte, size - lastSize); io.ReadFull(f, buf)
-	// TODO: return buf, size, nil
+	// TODO: compare current size against lastSize; three branches, each
+	//   pinned by a test:
+	//     - equal: nothing happened, return (nil, lastSize, nil).
+	//     - smaller: file shrank (rotation / truncate), return an error so
+	//       the caller can re-open from the start.
+	//     - larger: read exactly the appended bytes (size-lastSize), starting
+	//       at lastSize. io.ReadFull is the right primitive — io.Copy would
+	//       try to read to EOF and you've already learned where that is.
 	return nil, lastSize, nil
 }

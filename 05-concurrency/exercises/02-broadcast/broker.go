@@ -30,8 +30,8 @@ type Broker struct {
 
 // New returns a fresh Broker.
 func New() *Broker {
-	// TODO: return &Broker{subs: map[chan string]struct{}{}}
-
+	// TODO: make sure the subscriber set is usable before anyone calls
+	//   Subscribe — a nil map will panic on the first write.
 	return &Broker{}
 }
 
@@ -42,11 +42,11 @@ func (b *Broker) Subscribe() <-chan string {
 	b.mu.Lock()
 	defer b.mu.Unlock()
 
-	// TODO: if b.closed { return a pre-closed channel so the caller's `range` exits cleanly }
-	// TODO: ch := make(chan string, subBufSize)
-	// TODO: b.subs[ch] = struct{}{}
-	// TODO: return ch
-
+	// TODO: hand back a buffered receive channel and remember it in b.subs.
+	//   Edge case the tests cover: subscribing AFTER Close() — the caller
+	//   still does `for msg := range ch`, so the channel you return must
+	//   not leave them hanging forever. A pre-closed channel is the
+	//   conventional answer.
 	return nil
 }
 
@@ -57,13 +57,10 @@ func (b *Broker) Unsubscribe(ch <-chan string) {
 	b.mu.Lock()
 	defer b.mu.Unlock()
 
-	// TODO: for k := range b.subs {
-	// TODO:     if (<-chan string)(k) == ch {
-	// TODO:         delete(b.subs, k)
-	// TODO:         close(k)
-	// TODO:         return
-	// TODO:     }
-	// TODO: }
+	// TODO: find ch in b.subs, remove it, and close it. The annoying bit:
+	//   b.subs is keyed by `chan string` but the parameter is `<-chan string`,
+	//   so a direct map lookup won't work — you have to scan and compare via
+	//   a directional conversion. Skip silently if not found (no-op contract).
 
 	_ = ch
 }
@@ -80,13 +77,9 @@ func (b *Broker) Publish(msg string) {
 		return
 	}
 
-	// TODO: for ch := range b.subs {
-	// TODO:     select {
-	// TODO:     case ch <- msg:
-	// TODO:     default:
-	// TODO:         // subscriber too slow — drop
-	// TODO:     }
-	// TODO: }
+	// TODO: deliver msg to every current subscriber. A slow consumer must
+	//   NOT block the others, so use a non-blocking send and drop on a full
+	//   buffer — that's the lossy-but-live contract documented above.
 
 	_ = msg
 }
@@ -102,8 +95,8 @@ func (b *Broker) Close() {
 	}
 	b.closed = true
 
-	// TODO: for ch := range b.subs {
-	// TODO:     close(ch)
-	// TODO:     delete(b.subs, ch)
-	// TODO: }
+	// TODO: tear down every subscriber so their `range` loops exit. The
+	//   double-close concern (Unsubscribe + Close on the same channel) is
+	//   already handled — Unsubscribe deletes from b.subs first, so here
+	//   you can close whatever is still in the map.
 }

@@ -84,10 +84,10 @@ var castagnoli = crc32.MakeTable(crc32.Castagnoli)
 // The CRC32C is computed by hashing the file contents with the Castagnoli
 // table — same one GCS uses server-side.
 func WalkLocal(root string) ([]LocalFile, error) {
-	// TODO: walk <root> with filepath.WalkDir; skip directories.
-	// TODO: for each regular file: open it, compute crc32.Update over its
-	// TODO: bytes using the `castagnoli` table, build a forward-slash key
-	// TODO: with filepath.Rel(root, path), append a LocalFile.
+	// TODO: walk `root` and produce one LocalFile per regular file. The GCS
+	//   object name is path-relative to root with forward slashes. The CRC
+	//   MUST be Castagnoli (use the `castagnoli` table above and computeCRC32C)
+	//   — IEEE will silently re-upload every file every run.
 	return nil, errors.New("WalkLocal not implemented")
 }
 
@@ -103,8 +103,8 @@ func computeCRC32C(r io.Reader) (uint32, error) {
 // ListRemote drains the bucket listing into a {name: RemoteObject} map for
 // O(1) lookups in Plan. Uses the GCSAPI's List under the hood.
 func ListRemote(ctx context.Context, api GCSAPI, bucket string) (map[string]RemoteObject, error) {
-	// TODO: call api.List(ctx, bucket, ""). For each returned RemoteObject,
-	// TODO: store it under its Name in the map. Return the map.
+	// TODO: list everything in the bucket and index by Name so Plan can do
+	//   O(1) lookups. api.List already handles paging; you just collect.
 	return nil, errors.New("ListRemote not implemented")
 }
 
@@ -128,18 +128,15 @@ func Plan(locals []LocalFile, remotes map[string]RemoteObject, opts Options) []A
 //
 // If opts.DryRun is true, no GCS calls are made — actions are returned as-is.
 func Sync(ctx context.Context, api GCSAPI, opts Options) (uploaded, deleted, skipped int, err error) {
-	// TODO: locals, err := WalkLocal(opts.Dir); return on err.
-	// TODO: remotes, err := ListRemote(ctx, api, opts.Bucket); return on err.
-	// TODO: plan := Plan(locals, remotes, opts).
-
-	// TODO: if opts.DryRun, count actions by op and return.
-
-	// TODO: otherwise: bounded worker pool — semaphore-channel (buffered chan
-	// TODO: of size opts.Concurrency) OR a fixed pool reading from a job chan.
-	// TODO: For "upload", os.Open the file, api.Upload(...). For "delete",
-	// TODO: api.Delete(...). For "skip", increment skipped.
-	// TODO: collect first error via sync.Once or guarded var; other workers
-	// TODO: continue so counts are accurate.
+	// TODO: walk + list + Plan, then either tally (dry-run) or execute.
+	//   The interesting decisions:
+	//     - bounded concurrency: a semaphore channel of size opts.Concurrency
+	//       (same pattern as the fanout-ping mini-project in 05).
+	//     - upload needs to re-open the file at execution time — don't
+	//       hold N file handles open during planning.
+	//     - "first error wins" but the counts should still reflect work that
+	//       did happen. A guarded var + sync.Once is the easy way; an
+	//       errgroup is the prettier one.
 
 	_ = sync.WaitGroup{}
 	_ = atomic.Int32{}
@@ -173,12 +170,11 @@ func newRootCmd() *cobra.Command {
 			ctx, cancel := context.WithTimeout(cmd.Context(), 5*time.Minute)
 			defer cancel()
 
-			// In production wire a RealGCS from ../07-mocking-gcs/ here.
-			// For now the binary is a scaffold — the real GCSAPI wiring is
-			// the last thing you'd add once Sync/Plan/etc. pass tests.
-			// TODO: api, err := gcsutil.NewReal(ctx); if err != nil { return err }
-			// TODO: defer api.Client.Close()
-			// TODO: up, del, skip, err := Sync(ctx, api, opts)
+			// TODO: build a real GCSAPI and run Sync. The wrapper pattern in
+			//   ../07-mocking-gcs/ already gives you something that satisfies
+			//   this interface — what's left is constructing it, making sure
+			//   its underlying client gets closed, and threading the counts +
+			//   error back out to the printf below.
 			var (
 				up, del, skip int
 				err           error

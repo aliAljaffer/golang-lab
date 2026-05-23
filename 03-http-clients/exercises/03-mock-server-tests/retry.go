@@ -34,19 +34,12 @@ func DoWithRetry(client *http.Client, req *http.Request, maxAttempts int) (*http
 		return nil, fmt.Errorf("maxAttempts must be >= 1")
 	}
 
-	// TODO: for attempt := 0; attempt < maxAttempts; attempt++ {
-	//          resp, err := client.Do(req)
-	//          retry := err != nil || resp.StatusCode == 429 || resp.StatusCode >= 500
-	//          if !retry {
-	//              return resp, nil
-	//          }
-	//          if resp != nil { resp.Body.Close() }   // <-- don't leak!
-	//          if attempt == maxAttempts-1 { return resp, err }
-	//          sleep := baseDelay * (1 << attempt)
-	//          jitter := time.Duration(rand.Int63n(int64(sleep) / 2 + 1))
-	//          time.Sleep(sleep + jitter)
-	//       }
-	//       return nil, fmt.Errorf("unreachable")
+	// TODO: implement the retry loop. The doc above defines what counts as
+	//   retryable (429 + 5xx + transport errors). The load-bearing detail
+	//   the tests check: when you retry, you MUST close the previous
+	//   response's body — otherwise you leak the connection and the test
+	//   server's accept loop blocks waiting for it. Backoff = baseDelay <<
+	//   attempt + jitter.
 
 	_ = baseDelay
 	_ = rand.Int63n

@@ -55,16 +55,19 @@ type S3Uploader struct {
 
 // Put uploads body under bucket/key, with retry on transient errors.
 func (u *S3Uploader) Put(ctx context.Context, key string, body []byte) error {
-	// TODO: for attempt := 0; attempt <= u.MaxRetries; attempt++ {
-	// TODO:     if ctx.Err() != nil { return ctx.Err() }
-	// TODO:     err := u.Inner.putObject(ctx, u.Bucket, key, body)
-	// TODO:     if err == nil { return nil }
-	// TODO:     if !IsTransient(err) { return err }
-	// TODO:     if attempt == u.MaxRetries { return err }
-	// TODO:     // backoff = u.BaseBackoff * 2^attempt + jitter (use math/rand for jitter).
-	// TODO:     if sleepErr := u.Sleep(ctx, backoff); sleepErr != nil { return sleepErr }
-	// TODO: }
-	// TODO: return nil // unreachable
+	// TODO: implement the retry loop. The behaviour contract above is the
+	//   spec; the test file pins each branch (success, transient-then-success,
+	//   permanent, exhausted-retries, ctx-cancel mid-sleep).
+	//
+	//   Two things easy to get subtly wrong:
+	//     - the loop bound: how many *attempts* does MaxRetries permit? The
+	//       test name "retries N times then returns last error" tells you.
+	//     - the sleep contract: u.Sleep is ctx-aware and returns an error
+	//       when ctx fires. Propagate that, don't swallow it.
+	//
+	//   Backoff = BaseBackoff << attempt (or *2^attempt) + jitter. Jitter
+	//   matters for thundering-herd in prod but tests only check that the
+	//   backoff *grows* — pin it however the test allows.
 	return errors.New("S3Uploader.Put not implemented")
 }
 
@@ -82,19 +85,16 @@ func (u *S3Uploader) Put(ctx context.Context, key string, body []byte) error {
 // extract the error code from a wrapped SDK error. If the error has no
 // smithy code at all, assume "transport hiccup" and treat it as transient.
 func IsTransient(err error) bool {
-	// TODO: if err == nil { return false }
-	// TODO: if errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) { return false }
-	// TODO: var apiErr smithy.APIError
-	// TODO: if !errors.As(err, &apiErr) { return true } // unknown shape -> assume transient.
-	// TODO: switch apiErr.ErrorCode() {
-	// TODO: case "RequestTimeout", "RequestTimeoutException",
-	// TODO:      "SlowDown", "Throttling", "ThrottlingException", "TooManyRequestsException",
-	// TODO:      "InternalError", "ServiceUnavailable":
-	// TODO:     return true
-	// TODO: }
-	// TODO: // Final fallback: a smithy server-fault we didn't name explicitly
-	// TODO: // (apiErr.ErrorFault() == smithy.FaultServer) is also transient.
-	// TODO: return false
+	// TODO: classify err. The interesting decisions:
+	//   - ctx errors are NOT transient — retrying a cancelled call is silly.
+	//   - errors that don't carry a smithy.APIError (raw transport errors)
+	//     are conservatively treated as transient — they're usually DNS,
+	//     EOF, TLS hiccups worth one more shot.
+	//   - the docstring above names the exact smithy error codes that count
+	//     as transient. Everything else (AccessDenied, NoSuchBucket, …) is
+	//     permanent.
+	//   See `github.com/aws/smithy-go` — errors.As against smithy.APIError
+	//   gives you ErrorCode() and ErrorFault().
 	return false
 }
 
@@ -109,14 +109,10 @@ type s3ClientAdapter struct {
 
 // putObject writes body to s3://bucket/key and returns any error.
 func (a *s3ClientAdapter) putObject(ctx context.Context, bucket, key string, body []byte) error {
-	// TODO: _, err := a.Client.PutObject(ctx, &s3.PutObjectInput{
-	// TODO:     Bucket:          &bucket,
-	// TODO:     Key:             &key,
-	// TODO:     Body:            bytes.NewReader(body),
-	// TODO:     ContentEncoding: aws.String("gzip"),    // body is already gzipped
-	// TODO:     ContentType:     aws.String("application/octet-stream"),
-	// TODO: })
-	// TODO: return err
+	// TODO: call PutObject on a.Client. Don't forget Content-Encoding=gzip
+	//   on the request — the batches arrive here already gzipped, and the
+	//   consumer needs to know that so they get the bytes uncompressed
+	//   automatically. ContentType is also worth setting.
 	_ = bytes.NewReader
 	return errors.New("s3ClientAdapter.putObject not implemented")
 }

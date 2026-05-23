@@ -68,10 +68,9 @@ type WebhookResponse struct {
 // LoadConfig reads a YAML file at `path` and parses it into a Config.
 // A nil or empty `Jobs` map is treated as an error — pointless to run without jobs.
 func LoadConfig(path string) (Config, error) {
-	// TODO: data, err := os.ReadFile(path)
-	// TODO: var c Config; yaml.Unmarshal(data, &c)
-	// TODO: if len(c.Jobs) == 0 { return Config{}, fmt.Errorf("no jobs in %s", path) }
-	// TODO: for name, j := range c.Jobs { if len(j.Command) == 0 { return Config{}, fmt.Errorf("job %q has empty command", name) } }
+	// TODO: read the YAML and reject obviously-useless configs (no jobs at
+	//   all, or a job declared with an empty Command). The test pins the
+	//   exact error path for each — read it before you write.
 
 	_ = yaml.Unmarshal
 	return Config{}, fmt.Errorf("LoadConfig: not implemented")
@@ -80,11 +79,11 @@ func LoadConfig(path string) (Config, error) {
 // VerifyHMAC validates a GitHub-style "sha256=<hex>" signature header.
 // Compares in constant time via hmac.Equal.
 func VerifyHMAC(secret, body []byte, header string) bool {
-	// TODO: const prefix = "sha256="
-	// TODO: if !strings.HasPrefix(header, prefix) { return false }
-	// TODO: want, err := hex.DecodeString(header[len(prefix):]); if err != nil { return false }
-	// TODO: mac := hmac.New(sha256.New, secret); mac.Write(body); got := mac.Sum(nil)
-	// TODO: return hmac.Equal(got, want)
+	// TODO: parse the "sha256=<hex>" header and compare against the
+	//   HMAC-SHA256 of body under secret. CRITICAL: compare with hmac.Equal,
+	//   not bytes.Equal or "==". Constant-time comparison is the entire point
+	//   of an HMAC — short-circuiting on a length/byte mismatch leaks the
+	//   prefix of the right signature to a network observer.
 
 	_ = strings.HasPrefix
 	_ = hex.DecodeString
@@ -102,17 +101,13 @@ func VerifyHMAC(secret, body []byte, header string) bool {
 //   - The returned err is non-nil only for failures *outside* the process's
 //     control (couldn't spawn, ctx cancelled before start, etc.).
 func runJob(ctx context.Context, j Job, maxOutput int) (exitCode int, output string, err error) {
-	// TODO: if len(j.Command) == 0 { return 0, "", errors.New("empty command") }
-	// TODO: cmd := exec.CommandContext(ctx, j.Command[0], j.Command[1:]...)
-	// TODO: var buf bytes.Buffer; cmd.Stdout = &buf; cmd.Stderr = &buf
-	// TODO: runErr := cmd.Run()
-	// TODO: out := buf.String(); if len(out) > maxOutput { out = out[:maxOutput] }
-	// TODO:
-	//   switch e := runErr.(type) {
-	//   case nil:                return 0, out, nil
-	//   case *exec.ExitError:    return e.ExitCode(), out, nil
-	//   default:                 return 0, out, runErr
-	//   }
+	// TODO: spawn the command (exec.CommandContext so ctx-cancel kills it),
+	//   capture stdout+stderr into one buffer, and truncate to maxOutput.
+	//   The interesting bit is the error split documented above: an
+	//   *exec.ExitError (the program ran and exited non-zero) is NOT a Go
+	//   error from runJob's perspective — caller wants the exit code, not
+	//   an HTTP 500. Only failures-to-spawn / ctx-cancels return a non-nil
+	//   err from runJob.
 
 	_ = bytes.NewBuffer
 	_ = exec.CommandContext
@@ -124,18 +119,16 @@ func runJob(ctx context.Context, j Job, maxOutput int) (exitCode int, output str
 func newHandler(cfg Config, secret []byte, maxOutput int) http.Handler {
 	mux := http.NewServeMux()
 	mux.HandleFunc("POST /webhook", func(w http.ResponseWriter, r *http.Request) {
-		// TODO: r.Body = http.MaxBytesReader(w, r.Body, defaultMaxBody)
-		// TODO: body, err := io.ReadAll(r.Body); if err != nil { http.Error(w, err.Error(), 400); return }
-		// TODO: if !VerifyHMAC(secret, body, r.Header.Get("X-Hub-Signature-256")) {
-		//          http.Error(w, "bad signature", http.StatusUnauthorized); return
-		//       }
-		// TODO: var req WebhookRequest
-		//       if err := json.Unmarshal(body, &req); err != nil { http.Error(w, err.Error(), 400); return }
-		// TODO: job, ok := cfg.Jobs[req.Job]
-		//       if !ok { http.Error(w, "unknown job", http.StatusNotFound); return }
-		// TODO: exit, out, err := runJob(r.Context(), job, maxOutput)
-		//       if err != nil { http.Error(w, err.Error(), 500); return }
-		// TODO: writeJSON(w, 200, WebhookResponse{Job: req.Job, ExitCode: exit, Output: out})
+		// TODO: drive the request through: cap body size, verify HMAC, parse,
+		//   dispatch to runJob, return JSON. The status-code mapping is
+		//   pinned by the tests:
+		//     - bad/missing signature -> 401
+		//     - malformed JSON / oversized body -> 400
+		//     - unknown job -> 404
+		//     - runJob err (couldn't spawn) -> 500
+		//     - success (incl. job that exited non-zero) -> 200 with exit_code
+		//   The "exited non-zero is still 200" line trips people up — the
+		//   runner did its job; the command failed.
 
 		_ = io.ReadAll
 		_ = json.Unmarshal
@@ -174,9 +167,11 @@ func newRootCmd() *cobra.Command {
 				ReadHeaderTimeout: 5 * time.Second,
 			}
 
-			// TODO: run srv.ListenAndServe() in a goroutine; forward non-ErrServerClosed errors to errCh.
-			// TODO: signal.Notify on SIGINT + SIGTERM; on signal, srv.Shutdown(ctx with defaultShutdownGrace).
-			// TODO: return whichever channel fires first.
+			// TODO: graceful shutdown — run ListenAndServe on a goroutine,
+			//   wait on a signal channel, then Shutdown with the grace
+			//   deadline. http.ErrServerClosed coming out of ListenAndServe
+			//   is the *expected* path after Shutdown, not an error to
+			//   propagate.
 
 			_ = signal.Notify
 			_ = syscall.SIGTERM

@@ -47,10 +47,9 @@ type Batcher struct {
 	Hostname string
 	Now      func() time.Time
 
-	// Running state. TODO: declare what you need; suggestions:
-	//   - a [][]byte of buffered lines (or a bytes.Buffer of "line\n"… raw)
-	//   - an int rawBytes counter
-	//   - a time.Time firstAt
+	// Running state — you'll need somewhere to accumulate raw line bytes,
+	// a count of how many bytes that is so far, and the timestamp of the
+	// first line in the current batch (for the age-based flush).
 }
 
 // Add appends line to the current batch. If this push causes the running
@@ -60,27 +59,28 @@ type Batcher struct {
 //	(Batch, true)  -> caller should hand the batch to the uploader
 //	(Batch, false) -> still accumulating; nothing to upload yet
 func (b *Batcher) Add(line []byte) (Batch, bool) {
-	// TODO: if running state is empty, stamp firstAt = b.Now().
-	// TODO: append line (and a single '\n') to the buffer; bump rawBytes.
-	// TODO: if rawBytes >= MaxBytes, return b.finalize(), true.
-	// TODO: otherwise return Batch{}, false.
+	// TODO: append line + '\n' to the running buffer. Two edges to handle:
+	//   stamp firstAt on the empty→non-empty transition (so MaybeFlushByAge
+	//   has something to measure), and trigger finalize when the raw byte
+	//   count crosses MaxBytes.
 	return Batch{}, false
 }
 
 // MaybeFlushByAge returns a finalized Batch iff at least one line is buffered
 // AND Now() - firstAt >= MaxAge. Caller polls this on a ticker.
 func (b *Batcher) MaybeFlushByAge() (Batch, bool) {
-	// TODO: if rawBytes == 0, return Batch{}, false.
-	// TODO: if b.Now().Sub(firstAt) < b.MaxAge, return Batch{}, false.
-	// TODO: return b.finalize(), true.
+	// TODO: time-driven flush — only fires when there's something to flush
+	//   AND the buffered lines are old enough. Polled on a ticker, so it
+	//   must be cheap on the empty path.
 	return Batch{}, false
 }
 
 // Flush is the unconditional flush used by Run on shutdown. Returns
 // (_, false) iff the batch is empty (no upload to do).
 func (b *Batcher) Flush() (Batch, bool) {
-	// TODO: if rawBytes == 0, return Batch{}, false.
-	// TODO: return b.finalize(), true.
+	// TODO: unconditional flush. The only branch is "is anything buffered?"
+	//   — if not, return (_, false) so Run doesn't try to upload an empty
+	//   object on shutdown.
 	return Batch{}, false
 }
 
@@ -94,12 +94,14 @@ func (b *Batcher) Flush() (Batch, bool) {
 //
 // KeySuffix format: "<Hostname>/<firstAt.UTC().UnixNano()>.gz".
 func (b *Batcher) finalize() Batch {
-	// TODO: gzip the buffered bytes into a bytes.Buffer; close the gzip.Writer to flush.
-	// TODO: compute Castagnoli CRC32C of the gzipped bytes.
-	// TODO: build KeySuffix from b.Hostname and the captured firstAt timestamp.
-	// TODO: capture Count before resetting running state.
-	// TODO: reset running state (lines empty, rawBytes 0, firstAt zero).
-	// TODO: return the populated Batch.
+	// TODO: gzip the buffered lines, CRC the gzipped output, build the key
+	//   suffix, capture line count, then RESET running state before returning.
+	//   Two gotchas pinned by tests:
+	//     - the gzip.Writer must be closed before you CRC; otherwise the
+	//       trailer isn't written and the bytes won't match what GCS sees.
+	//     - the CRC table MUST be Castagnoli (crc32.MakeTable(crc32.Castagnoli)),
+	//       not the default IEEE polynomial. Mixing them up is the load-
+	//       bearing GCS pitfall from section 07-gcp.
 	return Batch{}
 }
 

@@ -64,14 +64,10 @@ func New(window time.Duration) *Limiter {
 //
 // When Allow returns true, it stamps the current time for this key.
 func (l *Limiter) Allow(key string) bool {
-	// TODO: l.mu.Lock(); defer l.mu.Unlock()
-	// TODO: now := l.Now()
-	// TODO: last, ok := l.lastSeen[key]
-	// TODO: if !ok || now.Sub(last) >= l.Window {
-	// TODO:     l.lastSeen[key] = now
-	// TODO:     return true
-	// TODO: }
-	// TODO: return false
+	// TODO: read+update lastSeen under l.mu. On the allowed path, RECORD
+	//   now — otherwise the limiter never engages. The "first call always
+	//   allows" case is the unseen-key branch; don't special-case it,
+	//   just treat a missing entry the same as "old enough".
 	_ = key
 	return false
 }

@@ -62,19 +62,13 @@ type GHReleaseFetcher struct {
 //	          404 -> ErrReleaseNotFound
 //	          other non-2xx -> error (include status in the message)
 func (f *GHReleaseFetcher) Fetch(ctx context.Context, owner, repo, tag string) (string, error) {
-	// TODO: build the URL: f.BaseURL + "/repos/" + owner + "/" + repo + "/releases/tags/" + tag.
-	// TODO: build a *http.Request with method GET and ctx.
-	// TODO: set "Accept: application/vnd.github+json".
-	// TODO: if f.Token != "" { req.Header.Set("Authorization", "Bearer " + f.Token) }.
-	// TODO: pick client := f.HTTPClient (or http.DefaultClient if nil); do the request.
-	// TODO: defer resp.Body.Close().
-	// TODO: switch resp.StatusCode {
-	// TODO:   case 200: // ok
-	// TODO:   case 404: return "", ErrReleaseNotFound
-	// TODO:   default: return "", fmt.Errorf("github releases API: %s", resp.Status)
-	// TODO: }
-	// TODO: decode the response body into a `release` struct (json.NewDecoder).
-	// TODO: call pickAsset(rel.Assets) to get the chosen URL; return it.
+	// TODO: hit the wire contract above. Decisions the tests pin:
+	//   - the URL path shape is exact: /repos/{owner}/{repo}/releases/tags/{tag}.
+	//   - 404 must return ErrReleaseNotFound (sentinel — tests use errors.Is).
+	//   - other non-2xx must return a real error mentioning the status.
+	//   - the Authorization header is only set when Token is non-empty;
+	//     the unauthenticated path is a tested branch (public repos).
+	//   - decode into the local `release` struct, then defer to pickAsset.
 	return "", errors.New("GHReleaseFetcher.Fetch not implemented")
 }
 
@@ -88,12 +82,8 @@ func (f *GHReleaseFetcher) Fetch(ctx context.Context, owner, repo, tag string) (
 //
 // Pure; trivially unit-testable; called from Fetch.
 func pickAsset(assets []asset) (string, error) {
-	// TODO: var fallback string.
-	// TODO: for _, a := range assets {
-	// TODO:     if a.Name == "Dockerfile" { return a.URL, nil }
-	// TODO:     if fallback == "" && (hasSuffix(a.Name, ".tar.gz") || hasSuffix(a.Name, ".tgz")) { fallback = a.URL }
-	// TODO: }
-	// TODO: if fallback != "" { return fallback, nil }
-	// TODO: return "", ErrNoSuitableAsset.
+	// TODO: apply the selection rule above. The "Dockerfile beats *.tar.gz
+	//   even if the tarball appears first" priority is the part the test
+	//   pins — one pass with a `fallback` variable is the simplest way.
 	return "", ErrNoSuitableAsset
 }

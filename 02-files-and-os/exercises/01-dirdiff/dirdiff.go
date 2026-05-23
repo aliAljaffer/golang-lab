@@ -23,13 +23,10 @@ type Entry struct {
 // Files present in both with identical sha256 contents are omitted.
 // Only regular files are considered; directories are ignored.
 func Diff(left, right string) ([]Entry, error) {
-	// TODO: hashTree(root) -> map[relPath]sha256sum, error
-	// TODO: call it for left and right
-	// TODO: walk the union of keys:
-	//         - in left only             -> OnlyLeft
-	//         - in right only            -> OnlyRight
-	//         - in both, hashes differ   -> Modified
-	//         - in both, hashes equal    -> skip
-	// TODO: return the slice.
+	// TODO: build {relPath -> sha256} for each tree, then walk the union of
+	//   keys and classify each into OnlyLeft / OnlyRight / Modified. Files
+	//   present on both sides with identical hashes contribute no Entry.
+	//   You'll likely want a helper that does the walk + hash; the test
+	//   doesn't care about its shape, only the Entry list it produces.
 	return nil, nil
 }

@@ -201,16 +201,12 @@ func observability(opts ServerOpts) func(http.Handler) http.Handler {
 // VerifyHMAC validates a GitHub-style "sha256=<hex>" signature header.
 // Creates a span so a trace shows time spent on signature verification.
 func VerifyHMAC(ctx context.Context, tracer trace.Tracer, secret, body []byte, header string) bool {
-	// TODO: _, span := tracer.Start(ctx, "verify-hmac")
-	// TODO: defer span.End()
-	// TODO: const prefix = "sha256="
-	// TODO: if !strings.HasPrefix(header, prefix) { span.SetAttributes(attribute.Bool("valid", false)); return false }
-	// TODO: want, err := hex.DecodeString(header[len(prefix):])
-	// TODO: if err != nil { return false }
-	// TODO: mac := hmac.New(sha256.New, secret); mac.Write(body); got := mac.Sum(nil)
-	// TODO: ok := hmac.Equal(got, want)
-	// TODO: span.SetAttributes(attribute.Bool("valid", ok))
-	// TODO: return ok
+	// TODO: wrap the HMAC verification in a "verify-hmac" span so the trace
+	//   shows time spent here, then do the actual check. Same crypto rules
+	//   as 04-http-servers (constant-time compare via hmac.Equal). The
+	//   span.SetAttributes(valid=true/false) is what makes the trace
+	//   pleasant to debug — without it you can't tell from a trace why
+	//   a request 401'd.
 
 	_ = ctx
 	_ = tracer
@@ -226,19 +222,12 @@ func VerifyHMAC(ctx context.Context, tracer trace.Tracer, secret, body []byte, h
 // attribute. Returns exit code (0 on success, >0 on process failure) and
 // truncated combined stdout+stderr. err is non-nil only on spawn-time failures.
 func RunJob(ctx context.Context, tracer trace.Tracer, j Job, maxOutput int) (exitCode int, output string, err error) {
-	// TODO: ctx, span := tracer.Start(ctx, "run-job")
-	// TODO: defer span.End()
-	// TODO: span.SetAttributes(attribute.String("job.argv0", j.Command[0]))
-	// TODO: if len(j.Command) == 0 { return 0, "", errors.New("empty command") }
-	// TODO: cmd := exec.CommandContext(ctx, j.Command[0], j.Command[1:]...)
-	// TODO: var buf bytes.Buffer; cmd.Stdout = &buf; cmd.Stderr = &buf
-	// TODO: runErr := cmd.Run()
-	// TODO: out := buf.String(); if len(out) > maxOutput { out = out[:maxOutput] }
-	// TODO: switch e := runErr.(type) {
-	// TODO: case nil:                span.SetAttributes(attribute.Int("exit.code", 0)); return 0, out, nil
-	// TODO: case *exec.ExitError:    span.SetAttributes(attribute.Int("exit.code", e.ExitCode())); return e.ExitCode(), out, nil
-	// TODO: default:                 return 0, out, runErr
-	// TODO: }
+	// TODO: wrap the spawn in a "run-job" span. Beyond that, same logic as
+	//   the un-instrumented version in 04-http-servers (exec.CommandContext,
+	//   combined stdout+stderr, truncate to maxOutput). Record exit.code as a
+	//   span attribute so traces can be filtered by failing jobs without
+	//   re-parsing logs. *exec.ExitError stays out of `err` (the process ran
+	//   — the WEBHOOK didn't fail) so the HTTP layer can still return 200.
 
 	_ = tracer
 	_ = bytes.NewBuffer

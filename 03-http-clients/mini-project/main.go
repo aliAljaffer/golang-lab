@@ -54,22 +54,12 @@ type CacheEntry struct {
 func fetchStats(client *http.Client, baseURL, repo, priorETag string) (stats Stats, newETag string, fresh bool, err error) {
 	url := baseURL + "/repos/" + repo
 
-	// TODO: req, err := http.NewRequest("GET", url, nil)
-	// TODO: req.Header.Set("Accept", "application/vnd.github+json")
-	// TODO: if priorETag != "" { req.Header.Set("If-None-Match", priorETag) }
-	// TODO: resp, err := doWithRetry(client, req, 4)  -- retry helper below
-	// TODO: defer resp.Body.Close()
-	// TODO:
-	//   switch resp.StatusCode {
-	//   case http.StatusNotModified:  // 304
-	//       return Stats{}, priorETag, false, nil
-	//   case http.StatusOK:           // 200
-	//       var s Stats
-	//       if err := json.NewDecoder(resp.Body).Decode(&s); err != nil { return ..., err }
-	//       return s, resp.Header.Get("ETag"), true, nil
-	//   default:
-	//       return Stats{}, "", false, fmt.Errorf("unexpected status %s for %s", resp.Status, repo)
-	//   }
+	// TODO: GET via doWithRetry, sending If-None-Match when we have one. The
+	//   three-way return signature is the spec: 304 → return the prior ETag
+	//   with fresh=false (caller reuses the cached Stats); 200 → decode +
+	//   return resp.Header.Get("ETag") with fresh=true; anything else is
+	//   a hard error. Don't forget the Accept header — GitHub will return
+	//   text/html otherwise.
 
 	_ = url
 	_ = json.NewDecoder
@@ -82,13 +72,12 @@ func fetchStats(client *http.Client, baseURL, repo, priorETag string) (stats Sta
 func doWithRetry(client *http.Client, req *http.Request, maxAttempts int) (*http.Response, error) {
 	const baseDelay = 100 * time.Millisecond
 
-	// TODO: loop attempt=0..maxAttempts-1:
-	//   - resp, err := client.Do(req)
-	//   - if err == nil and resp.StatusCode != 429 and resp.StatusCode < 500 -> return resp, nil
-	//   - if err == nil { resp.Body.Close() } before retrying so we don't leak
-	//   - if attempt == maxAttempts-1 -> return last resp/err (caller decides)
-	//   - sleep := baseDelay * (1 << attempt) + jitter (up to half of sleep)
-	//   - time.Sleep(sleep)
+	// TODO: try up to maxAttempts times with exponential backoff + jitter.
+	//   Retry on transport errors AND on 429 / 5xx; everything else
+	//   (including 4xx other than 429) returns immediately so the caller
+	//   can decide. CRITICAL: close resp.Body between attempts when the
+	//   response itself is what's wrong — otherwise you leak file
+	//   descriptors and the connection never returns to the pool.
 
 	_ = baseDelay
 	_ = rand.Int63n
@@ -98,25 +87,24 @@ func doWithRetry(client *http.Client, req *http.Request, maxAttempts int) (*http
 // loadCache reads the JSON-on-disk cache. A missing file is treated as
 // "no cache yet" (empty map, no error).
 func loadCache(path string) (map[string]CacheEntry, error) {
-	// TODO: os.ReadFile(path)
-	//       if errors.Is(err, fs.ErrNotExist) { return map[string]CacheEntry{}, nil }
-	//       json.Unmarshal into map[string]CacheEntry
+	// TODO: read+unmarshal the file. Missing file is the "no cache yet"
+	//   case — return an empty map with nil err, not propagate ErrNotExist.
 	return nil, fmt.Errorf("loadCache: not implemented")
 }
 
 // saveCache writes the cache atomically (write tmp -> rename).
 func saveCache(path string, c map[string]CacheEntry) error {
-	// TODO: marshal `c` with json.MarshalIndent
-	// TODO: write to path+".tmp" then os.Rename to path  (atomic replace)
+	// TODO: write the cache atomically: encode to "path+.tmp", then os.Rename
+	//   to path. Without the tmp+rename, a crash mid-write corrupts the cache
+	//   and the next run loses ETag continuity.
 	return fmt.Errorf("saveCache: not implemented")
 }
 
 // writeCSV writes rows to w. Header line is "name,stars,forks,pushed_at".
 func writeCSV(w io.Writer, rows []Stats) error {
-	// TODO: cw := csv.NewWriter(w)
-	// TODO: cw.Write the header
-	// TODO: for each row: cw.Write([]string{row.Name, strconv.Itoa(row.Stars), ...})
-	// TODO: cw.Flush(); return cw.Error()
+	// TODO: write a header line then one row per Stats. encoding/csv handles
+	//   quoting for you — don't hand-roll. Flush at the end and propagate
+	//   cw.Error(); the buffer holds anything you wrote until Flush.
 	_ = csv.NewWriter
 	return fmt.Errorf("writeCSV: not implemented")
 }
@@ -137,15 +125,12 @@ func newRootCmd() *cobra.Command {
 			}
 			client := &http.Client{Timeout: 15 * time.Second}
 
-			// TODO: cache, err := loadCache(cachePath)
-			// TODO: for each repo:
-			//         prior := cache[repo].ETag
-			//         stats, etag, fresh, err := fetchStats(client, defaultBaseURL, repo, prior)
-			//         if !fresh && prior != "" { stats = cache[repo].Stats }
-			//         cache[repo] = CacheEntry{ETag: etag, Stats: stats}
-			//         rows = append(rows, stats)
-			// TODO: saveCache(cachePath, cache)
-			// TODO: open outPath (or os.Stdout if "-"), call writeCSV(w, rows).
+			// TODO: load the cache, fetch each repo (passing the cached ETag),
+			//   reuse cached Stats on 304, then save the cache and emit CSV.
+			//   The "fresh==false but priorETag was set" branch is the one
+			//   that actually exercises the cache — make sure stats falls
+			//   back to the cached value there, otherwise the CSV is empty
+			//   for unchanged repos.
 
 			_ = client
 			return fmt.Errorf("gh-repo-stats: not implemented")

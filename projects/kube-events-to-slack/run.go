@@ -24,13 +24,11 @@ import (
 // (e.g. CrashLoopBackOff happens again) should also trigger.
 func newEventHandler(f Filter, d *Deduper, sink Sink, errOut io.Writer, now func() time.Time) cache.ResourceEventHandler {
 	check := func(obj interface{}) {
-		// TODO: type-assert obj to *corev1.Event.
-		//       Handle cache.DeletedFinalStateUnknown if you want defensive code,
-		//       though it's only emitted on Delete, not Add/Update.
-		// TODO: if !f.ShouldAlert(event) { return }.
-		// TODO: key := DedupKey(event); if !d.ShouldAlert(key) { return }.
-		// TODO: alert := FormatSlackMessage(event, now()).
-		// TODO: if err := sink.Send(context.Background(), alert); err != nil { fmt.Fprintln(errOut, "sink:", err) }.
+		// TODO: run filter -> dedup -> format -> sink on this event. The
+		//   informer hands you `interface{}`, so type-assert to *corev1.Event
+		//   first (and just return on the unexpected-type path; this handler
+		//   is only wired to Events). Sink errors go to errOut — don't return
+		//   them, or you'll cause the informer to drop the item.
 		_ = obj
 	}
 	return cache.ResourceEventHandlerFuncs{
@@ -48,15 +46,13 @@ func newEventHandler(f Filter, d *Deduper, sink Sink, errOut io.Writer, now func
 //
 // Returns nil on clean shutdown, or an error if the informer caches never sync.
 func Run(ctx context.Context, clientset kubernetes.Interface, f Filter, d *Deduper, sink Sink, errOut io.Writer) error {
-	// TODO: factory := informers.NewSharedInformerFactoryWithOptions(clientset, 30*time.Second).
-	// TODO: eventInformer := factory.Core().V1().Events().Informer().
-	// TODO: _, err := eventInformer.AddEventHandler(newEventHandler(f, d, sink, errOut, time.Now))
-	// TODO: if err != nil { return err }.
-	// TODO: factory.Start(ctx.Done()).
-	// TODO: if !cache.WaitForCacheSync(ctx.Done(), eventInformer.HasSynced) { return errors.New("event informer cache sync failed") }.
-	// TODO: <-ctx.Done(); return nil.
+	// TODO: build a SharedInformerFactory, attach newEventHandler to the
+	//   core/v1 Events informer, Start the factory, and block on ctx.Done().
+	//   The non-obvious bit is WaitForCacheSync — without it, the initial
+	//   list-vs-add backfill will fire ALL existing events as "new" alerts,
+	//   spamming Slack on every restart. Returning an error if the sync
+	//   fails is part of the contract.
 
-	// keep the imports live during scaffolding
 	_ = informers.NewSharedInformerFactoryWithOptions
 	_ = cache.WaitForCacheSync
 	_ = (*corev1.Event)(nil)

@@ -72,10 +72,10 @@ type Options struct {
 // relative to root, with backslashes converted to forward slashes (Windows
 // safety even on macOS, since S3 keys must be forward-slash).
 func WalkLocal(root string) ([]LocalFile, error) {
-	// TODO: implement. Use filepath.Walk or filepath.WalkDir. For each regular
-	// TODO: file, compute its md5 by hashing the file contents (see computeMD5
-	// TODO: below), and build a key as filepath.Rel(root, path) with backslashes
-	// TODO: replaced by forward slashes.
+	// TODO: walk `root` and produce one LocalFile per regular file. The S3
+	//   key is path-relative to root with forward slashes (filepath.Rel
+	//   may emit backslashes on Windows; convert them). MD5 comes from
+	//   hashing the file contents — see computeMD5 below.
 	return nil, errors.New("WalkLocal not implemented")
 }
 
@@ -92,9 +92,10 @@ func computeMD5(f io.Reader) (string, error) {
 // ListRemote returns a map of key → unquoted ETag (md5) for every object in
 // <bucket>. Pages internally.
 func ListRemote(ctx context.Context, api S3API, bucket string) (map[string]string, error) {
-	// TODO: page with s3.NewListObjectsV2Paginator(api, &s3.ListObjectsV2Input{Bucket: &bucket}).
-	// TODO: for each object, store {*obj.Key: strings.Trim(*obj.ETag, "\"")}.
-	// TODO: return the map.
+	// TODO: page through the bucket (ListObjectsV2 is paginated — buckets
+	//   over 1000 objects need the paginator). The non-obvious detail is
+	//   that S3 returns ETags wrapped in literal `"` quotes; strip them so
+	//   the comparison against local md5 hex is direct.
 	return nil, errors.New("ListRemote not implemented")
 }
 
@@ -118,16 +119,15 @@ func Plan(locals []LocalFile, remotes map[string]string, opts Options) []Action 
 //
 // If opts.DryRun is true, no S3 calls are made — actions are returned as-is.
 func Sync(ctx context.Context, api S3API, opts Options) (uploaded, deleted, skipped int, err error) {
-	// TODO: locals, _ := WalkLocal(opts.Dir)
-	// TODO: remotes, _ := ListRemote(ctx, api, opts.Bucket)
-	// TODO: plan := Plan(locals, remotes, opts)
-
-	// TODO: if opts.DryRun, count actions by op and return.
-
-	// TODO: otherwise spin up opts.Concurrency goroutines reading from a chan Action.
-	// TODO: For "upload", os.Open the file, PutObject. For "delete", DeleteObject.
-	// TODO: For "skip", increment skipped.
-	// TODO: collect first error via sync.Once or a guarded var.
+	// TODO: walk + list + Plan, then either tally (dry-run) or execute.
+	//   The interesting decisions:
+	//     - bounded concurrency: a semaphore channel of size opts.Concurrency
+	//       (same pattern as the fanout-ping mini-project in 05).
+	//     - upload needs to re-open the file at execution time — don't
+	//       hold N file handles open during planning.
+	//     - "first error wins" but the counts should still reflect work that
+	//       did happen. A guarded var + sync.Once is the easy way; an
+	//       errgroup is the prettier one.
 
 	_ = sync.WaitGroup{}
 	_ = atomic.Int32{}

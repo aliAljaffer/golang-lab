@@ -21,10 +21,9 @@ import "net/http"
 //
 // Empty input → "" with no error.
 func ParseNextLink(linkHeader string) string {
-	// TODO: split on "," (each entry is one link relation).
-	// TODO: for each entry, strings.SplitN on ";" — first part is "<url>", rest are params.
-	// TODO: find the entry whose params contain rel="next" — strip "<" and ">" from the url.
-	// TODO: return that url, else "".
+	// TODO: parse the RFC-5988 Link header. Each comma-separated entry has
+	//   the shape `<url>; rel="something"`; you want the url whose rel is
+	//   "next". Empty header is the "last page" signal — return "".
 	return ""
 }
 
@@ -33,16 +32,13 @@ func ParseNextLink(linkHeader string) string {
 // bodies in order. Stops and returns an error on any non-2xx response or
 // transport error.
 func FetchAll(client *http.Client, startURL string) ([][]byte, error) {
-	// TODO: loop:
-	//         resp, err := client.Get(url)
-	//         if err -> return what we have + err
-	//         if status != 2xx -> resp.Body.Close(); return err
-	//         body, _ := io.ReadAll(resp.Body); resp.Body.Close()
-	//         pages = append(pages, body)
-	//         next := ParseNextLink(resp.Header.Get("Link"))
-	//         if next == "" { break }
-	//         url = next
-	// TODO: return pages, nil.
+	// TODO: walk the pagination chain, appending each body. Two things to
+	//   watch out for:
+	//     - close every resp.Body, even on the non-2xx error path, or you
+	//       leak the connection.
+	//     - terminate on empty Link header (last page) — not on a specific
+	//       status code. Some APIs page until the body is empty; GitHub
+	//       pages until the header drops.
 	_ = startURL
 	_ = client
 	return nil, nil

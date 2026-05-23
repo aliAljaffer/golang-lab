@@ -57,13 +57,11 @@ type DockerRunner struct {
 // argument to Inner.containerCreate. This is the load-bearing test for
 // this type (TestDockerRunner_PassesAutoRemove).
 func (r *DockerRunner) Run(ctx context.Context, opts RunOpts) (string, error) {
-	// TODO: id, err := r.Inner.containerCreate(ctx, opts.ImageID, opts.Env, opts.HostPort, opts.ContainerPort, opts.RemoveOnExit).
-	// TODO: if err != nil { return "", err }.
-	// TODO: if err := r.Inner.containerStart(ctx, id); err != nil {
-	// TODO:     _ = r.Inner.containerRemove(ctx, id) // best-effort; cleanup orphan.
-	// TODO:     return "", err.
-	// TODO: }
-	// TODO: return id, nil.
+	// TODO: create + start. The two non-obvious decisions:
+	//   - opts.RemoveOnExit must be forwarded as the autoRemove argument to
+	//     containerCreate (TestDockerRunner_PassesAutoRemove pins this).
+	//   - if start fails, the container already exists — best-effort remove
+	//     the orphan, but return the original start error, not the remove's.
 	return "", errors.New("DockerRunner.Run not implemented")
 }
 
@@ -71,7 +69,7 @@ func (r *DockerRunner) Run(ctx context.Context, opts RunOpts) (string, error) {
 // pipeline's failure-cleanup branch (in run.go) can call it via the
 // high-level Runner interface.
 func (r *DockerRunner) Remove(ctx context.Context, containerID string) error {
-	// TODO: return r.Inner.containerRemove(ctx, containerID).
+	// TODO: pass through to the inner SDK.
 	return errors.New("DockerRunner.Remove not implemented")
 }
 
@@ -90,26 +88,23 @@ type dockerRunAdapter struct {
 //
 // Use `nat.Port(fmt.Sprintf("%d/tcp", containerPort))` for the port spec.
 func (a *dockerRunAdapter) containerCreate(ctx context.Context, image string, env []string, hostPort, containerPort int, autoRemove bool) (string, error) {
-	// TODO: portSpec := nat.Port(fmt.Sprintf("%d/tcp", containerPort)).
-	// TODO: cfg := &container.Config{ Image: image, Env: env, ExposedPorts: nat.PortSet{portSpec: struct{}{}} }.
-	// TODO: hostCfg := &container.HostConfig{
-	// TODO:     AutoRemove: autoRemove,
-	// TODO:     PortBindings: nat.PortMap{portSpec: []nat.PortBinding{{ HostIP: "0.0.0.0", HostPort: strconv.Itoa(hostPort) }}},
-	// TODO: }.
-	// TODO: resp, err := a.Client.ContainerCreate(ctx, cfg, hostCfg, nil, nil, "").
-	// TODO: if err != nil { return "", err }.
-	// TODO: return resp.ID, nil.
+	// TODO: build a container.Config + container.HostConfig and call
+	//   a.Client.ContainerCreate. The fiddly bit is the port mapping —
+	//   PortBindings keys are nat.Port (a typed "<port>/tcp" string) and
+	//   the host side is also a string (strconv.Itoa(hostPort)).
+	//   Don't forget HostConfig.AutoRemove = autoRemove.
 	return "", errors.New("dockerRunAdapter.containerCreate not implemented")
 }
 
 // containerStart starts a created container by ID.
 func (a *dockerRunAdapter) containerStart(ctx context.Context, id string) error {
-	// TODO: return a.Client.ContainerStart(ctx, id, container.StartOptions{}).
+	// TODO: pass through to a.Client.ContainerStart.
 	return errors.New("dockerRunAdapter.containerStart not implemented")
 }
 
 // containerRemove force-removes the container by ID.
 func (a *dockerRunAdapter) containerRemove(ctx context.Context, id string) error {
-	// TODO: return a.Client.ContainerRemove(ctx, id, container.RemoveOptions{Force: true}).
+	// TODO: pass through to a.Client.ContainerRemove. Force=true so an
+	//   already-running container is killed rather than refused.
 	return errors.New("dockerRunAdapter.containerRemove not implemented")
 }

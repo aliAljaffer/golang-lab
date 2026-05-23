@@ -53,16 +53,18 @@ type GCSUploader struct {
 
 // Put uploads body under bucket/key, with retry on transient errors.
 func (u *GCSUploader) Put(ctx context.Context, key string, body []byte) error {
-	// TODO: for attempt := 0; attempt <= u.MaxRetries; attempt++ {
-	// TODO:     if ctx.Err() != nil { return ctx.Err() }
-	// TODO:     err := u.Inner.putObject(ctx, u.Bucket, key, body)
-	// TODO:     if err == nil { return nil }
-	// TODO:     if !IsTransient(err) { return err }
-	// TODO:     if attempt == u.MaxRetries { return err }
-	// TODO:     // backoff = u.BaseBackoff * 2^attempt + jitter (use math/rand or crypto/rand for jitter).
-	// TODO:     if sleepErr := u.Sleep(ctx, backoff); sleepErr != nil { return sleepErr }
-	// TODO: }
-	// TODO: return nil // unreachable
+	// TODO: implement the retry loop. The behaviour contract above is the
+	//   spec; the test file pins each branch.
+	//
+	//   Two things easy to get subtly wrong:
+	//     - the loop bound: how many *attempts* does MaxRetries permit? The
+	//       test name "retries N times then returns last error" tells you.
+	//     - the sleep contract: u.Sleep is ctx-aware and returns an error
+	//       when ctx fires. Propagate that, don't swallow it.
+	//
+	//   Backoff = BaseBackoff << attempt (or *2^attempt) + jitter. Jitter
+	//   matters for thundering-herd in prod but tests only check that the
+	//   backoff *grows* — pin it however the test allows.
 	return errors.New("GCSUploader.Put not implemented")
 }
 
@@ -78,12 +80,14 @@ func (u *GCSUploader) Put(ctx context.Context, key string, body []byte) error {
 // extract the gRPC code from an error. If the error has no gRPC code at all,
 // assume "transport hiccup" and treat it as transient.
 func IsTransient(err error) bool {
-	// TODO: if err == nil { return false }
-	// TODO: if errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) { return false }
-	// TODO: st, ok := status.FromError(err)
-	// TODO: if !ok { return true } // unknown shape -> assume transient (transport hiccup).
-	// TODO: switch st.Code() { case codes.Unavailable, codes.DeadlineExceeded, codes.ResourceExhausted, codes.Aborted: return true }
-	// TODO: return false
+	// TODO: classify err. The interesting decisions:
+	//   - ctx errors are NOT transient — retrying a cancelled call is silly.
+	//   - errors that don't carry a gRPC status (raw transport errors) are
+	//     conservatively treated as transient — usually DNS/EOF/TLS hiccups
+	//     worth one more shot.
+	//   - the docstring above names the exact gRPC codes that count as
+	//     transient. Everything else (PermissionDenied, NotFound, …) is
+	//     permanent. See google.golang.org/grpc/status + .../codes.
 	return false
 }
 
@@ -99,10 +103,11 @@ type gcsClientAdapter struct {
 
 // putObject writes body to gs://bucket/key and returns the commit error.
 func (a *gcsClientAdapter) putObject(ctx context.Context, bucket, key string, body []byte) error {
-	// TODO: w := a.Client.Bucket(bucket).Object(key).NewWriter(ctx)
-	// TODO: w.ContentEncoding = "gzip"          // body is already gzipped
-	// TODO: w.ContentType     = "application/octet-stream"
-	// TODO: if _, err := w.Write(body); err != nil { _ = w.Close(); return err }
-	// TODO: return w.Close()                    // Close() is what COMMITS the upload.
+	// TODO: open a storage.Writer for gs://bucket/key. The GCS-specific
+	//   gotcha: writes are BUFFERED until Close() returns successfully —
+	//   that's the actual commit point. A bare `defer w.Close()` hides
+	//   the commit error, so capture it explicitly. Also set ContentEncoding
+	//   to "gzip" (body is already compressed) so reads decompress
+	//   automatically.
 	return errors.New("gcsClientAdapter.putObject not implemented")
 }

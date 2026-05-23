@@ -25,20 +25,23 @@ import (
 //
 // Returns the first error encountered.
 func rotateOnce(path string) error {
-	// TODO: stat path — if it doesn't exist, return an error.
-	// TODO: handle the path+".1" -> path+".2.gz" step (call gzipFile, then os.Remove).
-	// TODO: os.Rename(path, path+".1")
-	// TODO: create fresh empty file at path with the same perm as the original.
+	// TODO: walk the three-step rotation described above. Two non-obvious
+	//   bits the test pins:
+	//     - the fresh file at `path` must keep the original mode (otherwise
+	//       a 0600 log file rotates into a world-readable one).
+	//     - the previous rotated copy (path+".1") MUST be gzipped to .2.gz
+	//       BEFORE the rename, or you'll lose its content when .1 is
+	//       overwritten.
 	return fmt.Errorf("rotateOnce: not implemented")
 }
 
 // gzipFile reads src and writes a gzip-compressed copy to dst.
 // dst must not exist (we don't want to clobber a previous archive silently).
 func gzipFile(src, dst string) error {
-	// TODO: os.Open(src) — defer close.
-	// TODO: os.OpenFile(dst, O_WRONLY|O_CREATE|O_EXCL, 0o644) — defer close.
-	// TODO: gzip.NewWriter(dstFile) — defer close.
-	// TODO: io.Copy(gzWriter, srcFile)
+	// TODO: stream src into a new gzip writer pointed at dst. Use the
+	//   exclusive-create flag (O_EXCL) so an existing dst is an error, not
+	//   a silent overwrite. The gzip writer MUST be Close'd to flush its
+	//   trailer — a missing trailer makes the file unreadable.
 	return fmt.Errorf("gzipFile: not implemented")
 }
 
@@ -48,13 +51,9 @@ func gzipFile(src, dst string) error {
 //
 // `now` is injected so tests can pin the clock.
 func pruneOld(dir, prefix string, keepDays int, now time.Time) ([]string, error) {
-	// TODO: if keepDays <= 0, return (nil, nil) — "0 = keep everything".
-	// TODO: cutoff := now.AddDate(0, 0, -keepDays)
-	// TODO: os.ReadDir(dir) — for each entry:
-	//         - skip dirs
-	//         - skip names not matching prefix + "*.gz"
-	//         - entry.Info() for ModTime; if ModTime is before cutoff, os.Remove and record the path
-	// TODO: return removed list + nil (or the first error).
+	// TODO: keepDays <= 0 is the "keep everything" sentinel — early return
+	//   with no error. Otherwise scan dir, filter by prefix + ".gz" suffix,
+	//   and delete anything whose mtime is older than the cutoff.
 	return nil, fmt.Errorf("pruneOld: not implemented")
 }
 
@@ -69,11 +68,9 @@ func newRootCmd() *cobra.Command {
 			if file == "" {
 				return fmt.Errorf("--file is required")
 			}
-			// TODO: call rotateOnce(file)
-			// TODO: if keepDays > 0:
-			//         dir := filepath.Dir(file)
-			//         prefix := filepath.Base(file) + "."
-			//         _, err := pruneOld(dir, prefix, keepDays, time.Now())
+			// TODO: rotateOnce, then prune. The prefix passed to pruneOld is
+			//   filepath.Base(file) + "." so it only matches THIS log's
+			//   rotated copies, not anything else in the directory.
 			return fmt.Errorf("logrotate: not implemented")
 		},
 	}
