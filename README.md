@@ -33,19 +33,19 @@ Each section is a folder. Status legend: ☐ not started · ◐ in progress · �
 | #   | Section                                       | Status |
 | --- | --------------------------------------------- | ------ |
 | 00  | [Setup & toolchain](./00-setup/README.md)     | ☑      |
-| 01  | [CLI tools](./01-cli-tools/README.md)         | ☐      |
-| 02  | [Files & OS](./02-files-and-os/README.md)     | ☐      |
-| 03  | [HTTP clients](./03-http-clients/README.md)   | ☐      |
-| 04  | [HTTP servers](./04-http-servers/README.md)   | ☐      |
-| 05  | [Concurrency](./05-concurrency/README.md)     | ☐      |
-| 06  | [Testing](./06-testing/README.md)             | ☐      |
-| 07  | [AWS SDK](./07-aws/README.md)                 | ☐      |
-| 07  | [GCP SDK](./07-gcp/README.md)                 | ☐      |
-| 08  | [Kubernetes](./08-kubernetes/README.md)       | ☐      |
-| 09  | [Docker](./09-docker/README.md)               | ☐      |
-| 10  | [Observability](./10-observability/README.md) | ☐      |
-| 11  | [IaC tooling](./11-iac-tooling/README.md)     | ☐      |
-| ★   | [End-to-end projects](./projects/README.md)   | ☐      |
+| 01  | [CLI tools](./01-cli-tools/README.md)         | ☑      |
+| 02  | [Files & OS](./02-files-and-os/README.md)     | ☑      |
+| 03  | [HTTP clients](./03-http-clients/README.md)   | ☑      |
+| 04  | [HTTP servers](./04-http-servers/README.md)   | ☑      |
+| 05  | [Concurrency](./05-concurrency/README.md)     | ☑      |
+| 06  | [Testing](./06-testing/README.md)             | ☑      |
+| 07  | [AWS SDK](./07-aws/README.md)                 | ☑      |
+| 07  | [GCP SDK](./07-gcp/README.md)                 | ☑      |
+| 08  | [Kubernetes](./08-kubernetes/README.md)       | ☑      |
+| 09  | [Docker](./09-docker/README.md)               | ☑      |
+| 10  | [Observability](./10-observability/README.md) | ☑      |
+| 11  | [IaC tooling](./11-iac-tooling/README.md)     | ☑      |
+| ★   | [End-to-end projects](./projects/README.md)   | ☑      |
 
 ## How this repo is organized
 
